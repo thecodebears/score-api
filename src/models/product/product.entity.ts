@@ -1,5 +1,6 @@
 import { PrimaryGeneratedColumn, Column, UpdateDateColumn, CreateDateColumn, Entity } from 'typeorm';
 import { BaseEntity } from '../base.entity';
+import { ProductFeatures } from './product.types';
 
 
 @Entity()
@@ -34,6 +35,6 @@ export abstract class Product extends BaseEntity {
     @Column('date')
     public firstDelivery: Date;
 
-    @Column('json')
-    public features: string;
+    @Column('jsonb')
+    public features: ProductFeatures;
 }
