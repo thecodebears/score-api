@@ -1,6 +1,6 @@
 type ProductId = string;
 type Count = number;
 
-export type UserCart = {
+export type Cart = {
     [key: ProductID]: Count
 };

@@ -1,10 +1,10 @@
 import { Column, Entity, Index } from 'typeorm';
 import { BaseEntity } from '../base.entity';
-import { UserCart } from './user.types';
+import { Cart } from './account.types';
 
 
 @Entity()
-export abstract class User extends BaseEntity {
+export abstract class Account extends BaseEntity {
     @Column('varchar', { length: 256 })
     @Index({ unique: true })
     public name: string;
@@ -19,7 +19,7 @@ export abstract class User extends BaseEntity {
     public admin: boolean;
 
     @Column('jsonb')
-    public cart: UserCart;
+    public cart: Cart;
 
     @Column('varchar', { array: true })
     public favourites: string[];
