@@ -1,6 +1,6 @@
 import { Column, Entity, Index } from 'typeorm';
 import { BaseEntity } from '../base.entity';
-import { UserCart, UserConnections } from './user.types';
+import { UserCart } from './user.types';
 
 
 @Entity()
@@ -8,9 +8,6 @@ export abstract class User extends BaseEntity {
     @Column('varchar', { length: 256 })
     @Index({ unique: true })
     public name: string;
-
-    @Column('jsonb')
-    public connections: UserConnections;
 
     @Column('varchar')
     public avatarUrl: string;
