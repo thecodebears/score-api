@@ -12,5 +12,5 @@ export abstract class Connection extends BaseEntity {
     public key: string;
 
     @Column('varchar')
-    public userId: string;
+    public account: string;
 }
