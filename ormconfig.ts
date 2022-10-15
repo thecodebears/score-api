@@ -4,6 +4,7 @@ import { BaseEntity } from 'src/models/base.entity';
 import { Product } from 'src/models/product/product.entity';
 import { Application } from 'src/models/application/application.entity';
 import { User } from 'src/models/user/user.entity';
+import { Connection } from 'src/models/connection/connection.entity';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 
 
@@ -24,7 +25,8 @@ const config: Readonly<PostgresConnectionOptions> = {
         BaseEntity,
         Product,
         Application,
-        User
+        User,
+        Connection
     ],
 
     ...(process.env.useSSL === ('true' || true) && {
