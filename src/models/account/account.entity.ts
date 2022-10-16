@@ -9,6 +9,9 @@ export abstract class Account extends BaseEntity {
     @Index({ unique: true })
     public name: string;
 
+    @Column('varchar')
+    public password: string;
+
     @Column('varchar', { default: '' })
     public avatarUrl: string = '';
 
