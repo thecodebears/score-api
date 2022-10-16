@@ -12,7 +12,4 @@ export abstract class Application extends BaseEntity {
 
     @Column('varchar', { array: true })
     public permissions: string[];
-
-    @Column('varchar')
-    public refreshToken: string;
 }
