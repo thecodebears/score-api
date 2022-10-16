@@ -9,18 +9,18 @@ export abstract class Account extends BaseEntity {
     @Index({ unique: true })
     public name: string;
 
-    @Column('varchar')
-    public avatarUrl: string;
+    @Column('varchar', { default: '' })
+    public avatarUrl: string = '';
 
-    @Column('boolean')
-    public employee: boolean;
+    @Column('boolean', { default: false })
+    public employee: boolean = false;
 
-    @Column('boolean')
-    public admin: boolean;
+    @Column('boolean', { default: false })
+    public admin: boolean = false;
 
-    @Column('jsonb')
-    public cart: Cart;
+    @Column('jsonb', { default: {} })
+    public cart: Cart = {};
 
-    @Column('varchar', { array: true })
-    public favourites: string[];
+    @Column('varchar', { array: true, default: [] })
+    public favourites: string[] = [];
 }
