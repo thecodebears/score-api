@@ -1,12 +1,12 @@
 import { Column, Entity } from 'typeorm';
 import { BaseEntity } from '../base.entity';
-import { ConnectionType } from './connection.types';
+import { ConnectionPlatform } from './connection.types';
 
 
 @Entity()
 export abstract class Connection extends BaseEntity {
     @Column('varchar')
-    public type: ConnectionType;
+    public platform: ConnectionPlatform;
 
     @Column('varchar')
     public key: string;
