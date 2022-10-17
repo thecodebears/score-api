@@ -2,9 +2,7 @@
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
-import { Account } from '../../models/account/account.entity';
 import { AccountService } from '../../models/account/account.service';
-import { Application } from '../../models/application/application.entity';
 import { ApplicationService } from '../../models/application/application.service';
 import env from 'environment';
 
@@ -21,11 +19,7 @@ export class AccountJwtStrategy extends PassportStrategy(Strategy, 'AccountJwt')
     }
 
     async validate(payload: any): Promise<any> {
-        if (payload.scope === 'account') {
-            let account = await this.accountService.findOneBy({ id: payload.id });
-            return account;
-        }
-        return null;
+        return payload.scope === 'account' ? payload : null;
     }
 }
 
@@ -41,10 +35,6 @@ export class ApplicationJwtStrategy extends PassportStrategy(Strategy, 'Applicat
     }
 
     async validate(payload: any): Promise<any> {
-        if (payload.scope === 'application') {
-            let application = await this.applicationService.findOneBy({ id: payload.id });
-            return application;
-        }
-        return null;
+        return payload.scope === 'application' ? payload : null;
     }
 }
