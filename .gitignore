@@ -128,3 +128,6 @@ dist
 
 # pnpm
 pnpm-lock.yaml
+
+# fleet
+.fleet/
