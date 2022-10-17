@@ -5,4 +5,8 @@ import { PrimaryGeneratedColumn, Column, UpdateDateColumn, CreateDateColumn, Ent
 export abstract class BaseEntity {
     @PrimaryGeneratedColumn('uuid')
     public id: string;
+
+    public pick(fields: string[]) {
+        return fields.reduce((a, b) => b in this ? Object.assign(a, { [b]: this[b] }) : a, {})
+    }
 }
