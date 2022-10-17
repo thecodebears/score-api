@@ -1,6 +1,10 @@
 import { IsString, IsNotEmpty, Allow } from 'class-validator';
 
 
+export class GetApplicationDataDto {
+    fields: string[]
+}
+
 export class CreateApplicationDto {
     @IsNotEmpty()
     @IsString()
@@ -20,3 +24,18 @@ export class AuthorizeApplicationDto {
     @IsString()
     id: string;
 };
+
+export class UpdateApplicationDto {
+    @IsNotEmpty()
+    @IsString()
+    id: string;
+
+    @IsString()
+    name?: string;
+
+    @IsString()
+    description?: string;
+
+    @IsString()
+    permissions?: string[];
+}
