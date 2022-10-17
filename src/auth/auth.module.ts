@@ -11,6 +11,7 @@ import { DiscordStrategy } from './strategy/discord.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { SessionSerializer } from './serializer';
 import env from 'environment';
+import { AdminGuard } from './guard/admin.guard';
 
 
 @Module({
