@@ -24,6 +24,4 @@ namespace environment {
     }
 }
 
-console.log(environment.credentials.discord);
-
 export default environment;
