@@ -1,4 +1,5 @@
 import { IsString, IsNotEmpty, Allow, IsBoolean } from 'class-validator';
+import { Account } from "./account.entity";
 
 type ProductId = string;
 type Count = number;
@@ -33,4 +34,9 @@ export class UpdateAccountDto {
 
     @IsBoolean()
     public admin?: boolean;
+}
+
+export interface RegistrationResponse {
+    account: Account,
+    token: string
 }
