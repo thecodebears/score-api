@@ -1,9 +1,9 @@
-import { Controller, HttpException, Query, UseGuards, Post, Get, Param } from '@nestjs/common';
+import { Controller, HttpException, Query, UseGuards, Post, Get, Param, Response } from '@nestjs/common';
 import { AccountService } from './account.service';
 import { AccountJwtGuard } from '../../auth/guard/jwt.guard';
 import { JwtService } from '@nestjs/jwt';
 import { AdminGuard } from '../../auth/guard/admin.guard';
-import { UpdateAccountDto, GetAccountDataDto } from './account.types';
+import { UpdateAccountDto, GetAccountDto } from './account.types';
 
 
 @Controller('account')
@@ -13,25 +13,26 @@ export class AccountController {
         private jwtService: JwtService
     ) {}
 
-    @Get(':id')
+    @Get()
     @UseGuards(AccountJwtGuard, AdminGuard)
-    public async getAccountData(
-        @Param('id') id: string,
-        @Query() { fields }: GetAccountDataDto
-        ) {
-        const entity = await this.accountService.findOneBy({ id });
-        const neededFields = fields.reduce((a, b) => b in entity? Object.assign(a, { [b]: entity[b] }): a, {})
-
-        return neededFields
+    public async getAccountData(@Query() { id, fields }: GetAccountDto) {
+        const account = await this.accountService.findOneBy({ id });
+        if (!account) throw new HttpException('Account not found.', 404);
+        return fields ? account.pick(fields?.split(/\,/g)) : account;
     }
 
     @Post('update')
     @UseGuards(AccountJwtGuard, AdminGuard)
-    public async updateAccountData(@Query() { id, ...override }: UpdateAccountDto) {
-        let entity = await this.accountService.findOneBy({ id })
-        let isOk = await this.accountService.update(entity, override)
-        if(!isOk) throw new HttpException('Entity update fault', 500);
+    public async updateAccountData(
+        @Query() { id, ...override }: UpdateAccountDto,
+        @Response({ passthrough: true }) res
+    ) {
+        let account = await this.accountService.findOneBy({ id });
+        if (!account) throw new HttpException('Account not found.', 404);
 
-        return { status: 'OK' }
+        let updateResult = await this.accountService.update(account, override)
+        if (!updateResult) throw new HttpException('Failed to update account. Check your parameters, it may be incorrect.', 500);
+
+        res.status(200);
     }
 }

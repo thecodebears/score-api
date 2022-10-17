@@ -1,4 +1,4 @@
-import { Controller, HttpException, Query, UseGuards, Post, Get, Param } from '@nestjs/common';
+import { Controller, HttpException, Query, UseGuards, Post, Get, Param, Response } from '@nestjs/common';
 import { ApplicationService } from './application.service';
 import { AccountJwtGuard } from '../../auth/guard/jwt.guard';
 import { JwtService } from '@nestjs/jwt';
@@ -7,7 +7,7 @@ import {
     CreateApplicationDto,
     AuthorizeApplicationDto,
     UpdateApplicationDto,
-    GetApplicationDataDto
+    GetApplicationDto
 } from './application.types';
 
 
@@ -17,18 +17,6 @@ export class ApplicationController {
         private applicationService: ApplicationService,
         private jwtService: JwtService
     ) {}
-
-    @Get(':id')
-    @UseGuards(AccountJwtGuard, AdminGuard)
-    public async getApplicationData(
-        @Param('id') id: string,
-        @Query() { fields }: GetApplicationDataDto
-        ) {
-        const entity = await this.applicationService.findOneBy({ id });
-        const neededFields = fields.reduce((a, b) => b in entity? Object.assign(a, { [b]: entity[b] }): a, {})
-
-        return neededFields
-    }
 
     @Post('create')
     @UseGuards(AccountJwtGuard, AdminGuard)
@@ -42,6 +30,14 @@ export class ApplicationController {
         return application;
     }
 
+    @Get()
+    @UseGuards(AccountJwtGuard, AdminGuard)
+    public async getApplicationData(@Query() { id, fields }: GetApplicationDto) {
+        const application = await this.applicationService.findOneBy({ id });
+        if (!application) throw new HttpException('Application not found.', 404);
+        return fields ? application.pick(fields?.split(/\,/g)) : application;
+    }
+
     @Post('authorize')
     @UseGuards(AccountJwtGuard, AdminGuard)
     public async authorizeApplication(@Query() { id }: AuthorizeApplicationDto) {
@@ -53,13 +49,19 @@ export class ApplicationController {
 
     @Post('update')
     @UseGuards(AccountJwtGuard, AdminGuard)
-    public async updateApplicationData(@Query() { id, ...override }: UpdateApplicationDto) {
-        let entity = await this.applicationService.findOneBy({ id })
-        let isOk = await this.applicationService.update(entity, override)
-        if(!isOk) throw new HttpException('Entity update fault', 500);
+    public async updateApplicationData(
+        @Query() { id, ...override }: UpdateApplicationDto,
+        @Response({ passthrough: true }) res
+    ) {
+        let application = await this.applicationService.findOneBy({ id });
+        if (!application) throw new HttpException('Application not found.', 404);
 
-        return { status: 'OK' }
+        let updateResult = await this.applicationService.update(application, override)
+        if (!updateResult) throw new HttpException('Failed to update application. Check your parameters, it may be incorrect.', 500);
+
+        res.status(200);
     }
 
-    //implement permissions update route
+    // TODO: Implement update routing for each field
+    // TODO: Migrate HttpException's to Pipe classes (from all cases)
 }

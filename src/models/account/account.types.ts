@@ -8,15 +8,18 @@ export type Cart = {
     [key: ProductId]: Count
 };
 
-export class GetAccountDataDto {
-    fields: string[]
-}
-
-export class UpdateAccountDto {
+export class AccountIndexingDto {
     @IsNotEmpty()
     @IsString()
     id: string;
+}
 
+export class GetAccountDto extends AccountIndexingDto {
+    @Allow()
+    fields: string
+}
+
+export class UpdateAccountDto extends AccountIndexingDto {
     @IsString()
     name?: string;
 

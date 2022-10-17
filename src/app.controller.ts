@@ -2,6 +2,8 @@ import { Controller, Get, UseGuards } from '@nestjs/common';
 import { AppService } from './app.service';
 import { AccountJwtGuard, ApplicationJwtGuard } from './auth/guard/jwt.guard';
 import { AdminGuard } from './auth/guard/admin.guard';
+import { PermissionsGuard } from './auth/guard/permissions.guard';
+import { Permissions } from './decorators/permissions.decorator';
 
 
 @Controller()
@@ -28,6 +30,13 @@ export class AppController {
     @Get('test/application')
     @UseGuards(ApplicationJwtGuard)
     applicationTest(): string {
+        return ':3';
+    }
+
+    @Get('test/application/permissions')
+    @Permissions('test_method')
+    @UseGuards(ApplicationJwtGuard, PermissionsGuard)
+    applicationPermissionsTest(): string {
         return ':3';
     }
 }
