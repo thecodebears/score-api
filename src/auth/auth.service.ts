@@ -38,7 +38,7 @@ export class AuthService {
      * Used to authorization from trusted platforms.
      */
     public async connect(platform: ConnectionPlatform, key: string, name: string): Promise<Account> {
-        let connection = await this.connectionService.findOneBy({ platform: 'discord', key });
+        let connection = await this.connectionService.findOneBy({ platform, key });
         let account: Account;
 
         if (!connection) {
