@@ -34,6 +34,7 @@ export class ProductController {
     @UseGuards(ApplicationJwtGuard)
     public async search() {
         // Waiting for search engine.
+        return 'Not implemented.';
     }
 
     @Post('update')

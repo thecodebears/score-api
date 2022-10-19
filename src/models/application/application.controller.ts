@@ -37,6 +37,7 @@ export class ApplicationController {
     @UseGuards(AccountJwtGuard, AdminGuard)
     public async search() {
         // Waiting for search engine.
+        return 'Not implemented.';
     }
 
     @Post('update')
