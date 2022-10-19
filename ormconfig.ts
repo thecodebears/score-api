@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import * as path from "path";
-import { BaseEntity } from 'src/models/base.entity';
+import { ModelEntity } from 'src/models/model.entity';
 import { Product } from 'src/models/product/product.entity';
 import { Application } from 'src/models/application/application.entity';
 import { Account } from 'src/models/account/account.entity';
@@ -22,7 +22,7 @@ const config: Readonly<PostgresConnectionOptions> = {
     applicationName: `score@${ process.env.hostname }`,
     migrations: [ path.join(__dirname, 'src/migration/*.ts') ],
     entities: [
-        BaseEntity,
+        ModelEntity,
         Product,
         Application,
         Account,
