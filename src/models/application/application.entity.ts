@@ -1,9 +1,9 @@
 import { Column, Entity } from 'typeorm';
-import { BaseEntity } from '../base.entity';
+import { ModelEntity } from '../model.entity';
 
 
 @Entity()
-export abstract class Application extends BaseEntity {
+export abstract class Application extends ModelEntity {
     @Column('varchar', { length: 256 })
     public name: string;
 
