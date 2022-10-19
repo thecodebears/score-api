@@ -1,67 +1,94 @@
-import { Controller, HttpException, Query, UseGuards, Post, Get, Param, Response } from '@nestjs/common';
+import { Controller, HttpException, Query, UseGuards, Post, Get, Response } from '@nestjs/common';
 import { ApplicationService } from './application.service';
 import { AccountJwtGuard } from '../../auth/guard/jwt.guard';
 import { JwtService } from '@nestjs/jwt';
 import { AdminGuard } from '../../auth/guard/admin.guard';
 import {
-    CreateApplicationDto,
-    AuthorizeApplicationDto,
-    UpdateApplicationDto,
-    GetApplicationDto
-} from './application.types';
+    ModelCreateRequest,
+    ModelDeleteRequest,
+    ModelGetRequest, ModelIndexationRequest,
+    ModelSearchRequest,
+    ModelUpdateRequest
+} from '../model.types';
+import { Permissions } from '../../decorators/permissions.decorator';
+import { Application } from './application.entity';
+import { ApplicationNewRequest } from './application.types';
 
 
 @Controller('application')
 export class ApplicationController {
     constructor(
-        private applicationService: ApplicationService,
-        private jwtService: JwtService
+        private applicationService: ApplicationService
     ) {}
-
-    @Post('create')
-    @UseGuards(AccountJwtGuard, AdminGuard)
-    public async createApplication(@Query() { name, description, permissions }: CreateApplicationDto) {
-        let application = await this.applicationService.create({
-            name,
-            description,
-            permissions: permissions.split(/\s/g)
-        });
-
-        return application;
-    }
 
     @Get()
     @UseGuards(AccountJwtGuard, AdminGuard)
-    public async getApplicationData(@Query() { id, fields }: GetApplicationDto) {
-        const application = await this.applicationService.findOneBy({ id });
-        if (!application) throw new HttpException('Application not found.', 404);
-        return fields ? application.pick(fields?.split(/\,/g)) : application;
+    public async get(@Query() { id, fields }: ModelGetRequest) {
+        const account = await this.applicationService.findOneBy({ id });
+        if (!account) throw new HttpException('Application not found.', 404);
+        return fields ? account.pick(fields?.split(/\,/g)) : account;
     }
 
-    @Post('authorize')
+    @Post('create')
+    @Permissions('application.create')
     @UseGuards(AccountJwtGuard, AdminGuard)
-    public async authorizeApplication(@Query() { id }: AuthorizeApplicationDto) {
-        let token = await this.applicationService.authorize(id);
-        if (!token) throw new HttpException('Application not found.', 404);
+    public async create(@Query() fields: ModelCreateRequest<Application>) {
+        return this.applicationService.create(fields);
+    }
 
-        return { token };
+    @Post('search')
+    @Permissions('application.search')
+    @UseGuards(AccountJwtGuard, AdminGuard)
+    public async search(@Query() { id, ...searchFields }: ModelSearchRequest<Application>) {
+        const accounts = await this.applicationService.findBy(searchFields);
+        if (!accounts.length) throw new HttpException('No results.', 404);
+        return { accounts };
     }
 
     @Post('update')
+    @Permissions('application.update')
     @UseGuards(AccountJwtGuard, AdminGuard)
-    public async updateApplicationData(
-        @Query() { id, ...override }: UpdateApplicationDto,
+    public async update(
+        @Query() { id, ...overrideFields }: ModelUpdateRequest<Application>,
         @Response({ passthrough: true }) res
     ) {
-        let application = await this.applicationService.findOneBy({ id });
-        if (!application) throw new HttpException('Application not found.', 404);
+        let account = await this.applicationService.findOneBy({ id });
+        if (!account) throw new HttpException('Application not found.', 404);
 
-        let updateResult = await this.applicationService.update(application, override)
+        let updateResult = await this.applicationService.update(account, overrideFields);
         if (!updateResult) throw new HttpException('Failed to update application. Check your parameters, it may be incorrect.', 500);
 
         res.status(200);
     }
 
-    // TODO: Implement update routing for each field
-    // TODO: Migrate HttpException's to Pipe classes (from all cases)
+    @Post('delete')
+    @Permissions('application.delete')
+    @UseGuards(AccountJwtGuard, AdminGuard)
+    public async delete(
+        @Query() { id }: ModelDeleteRequest,
+        @Response({ passthrough: true }) res
+    ) {
+        let account = await this.applicationService.findOneBy({ id });
+        if (!account) throw new HttpException('Application not found.', 404);
+
+        await this.applicationService.remove(account);
+
+        res.status(200);
+    }
+
+    @Post('new')
+    @Permissions('application.signup')
+    @UseGuards(AccountJwtGuard, AdminGuard)
+    public async new(@Query() { name, description, permissions }: ApplicationNewRequest) {
+        return this.applicationService.new(name, description, permissions.split(/\,/g));
+    }
+
+    @Post('authorize')
+    @Permissions('application.signin')
+    @UseGuards(AccountJwtGuard, AdminGuard)
+    public async authorize(@Query() { id }: ModelIndexationRequest) {
+        let application = await this.applicationService.findOneBy({ id });
+        if (!application) throw new HttpException('Application not found.', 404);
+        return { token: this.applicationService.authorize(application) }
+    }
 }
