@@ -20,7 +20,7 @@ export class AuthService {
 
         if (!connection) {
             let password = Math.random().toString(16).slice(2);
-            let { account } = await this.accountService.register(name, password);
+            let { account } = await this.accountService.signUp(name, password);
 
             await this.connectionService.create({ platform: 'discord', key, account: account.id });
 
