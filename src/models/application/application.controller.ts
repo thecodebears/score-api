@@ -29,16 +29,14 @@ export class ApplicationController {
 
     @Post('create')
     @UseGuards(AccountJwtGuard, AdminGuard)
-    public async create(@Query() fields: ModelCreateRequest<Application>) {
-        return this.applicationService.create(fields);
+    public async create() {
+        return 'Method is deprecated, see /application/new.';
     }
 
     @Post('search')
     @UseGuards(AccountJwtGuard, AdminGuard)
-    public async search(@Query() { id, ...searchFields }: ModelSearchRequest<Application>) {
-        const applications = await this.applicationService.findBy(searchFields);
-        if (!applications.length) throw new HttpException('No results.', 404);
-        return { applications };
+    public async search() {
+        // Waiting for search engine.
     }
 
     @Post('update')
