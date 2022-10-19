@@ -1,7 +1,8 @@
 import { IsString, IsNotEmpty, Allow } from 'class-validator';
+import { Application } from './application.entity';
 
 
-export class CreateApplicationDto {
+export class ApplicationNewRequest {
     @IsNotEmpty()
     @IsString()
     name: string;
@@ -13,28 +14,9 @@ export class CreateApplicationDto {
     @IsNotEmpty()
     @IsString()
     permissions: string;
-};
-
-export class ApplicationIndexingDto {
-    @IsNotEmpty()
-    @IsString()
-    id: string;
 }
 
-export class GetApplicationDto extends ApplicationIndexingDto {
-    @Allow()
-    fields: string
-}
-
-export class AuthorizeApplicationDto extends ApplicationIndexingDto {};
-
-export class UpdateApplicationDto extends ApplicationIndexingDto {
-    @Allow()
-    name: string;
-
-    @Allow()
-    description: string;
-
-    @Allow()
-    permissions: string[];
+export type NewActionResponse = {
+    application: Application,
+    token: string
 }
