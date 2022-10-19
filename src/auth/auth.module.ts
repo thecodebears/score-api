@@ -5,13 +5,12 @@ import { AccountModule } from '../models/account/account.module';
 import { ApplicationModule } from '../models/application/application.module';
 import { ConnectionModule } from '../models/connection/connection.module';
 import { PassportModule } from '@nestjs/passport';
-import { LocalStrategy } from './strategy/local.strategy';
-import { AccountJwtStrategy, ApplicationJwtStrategy } from './strategy/jwt.strategy';
-import { DiscordStrategy } from './strategy/discord.strategy';
+import { LocalStrategy } from '../strategy/local.strategy';
+import { AccountJwtStrategy, ApplicationJwtStrategy } from '../strategy/jwt.strategy';
+import { DiscordStrategy } from '../strategy/discord.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { SessionSerializer } from './serializer';
 import env from 'environment';
-import { AdminGuard } from './guard/admin.guard';
 
 
 @Module({
