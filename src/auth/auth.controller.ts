@@ -13,19 +13,6 @@ export class AuthController {
         private accountService: AccountService
     ) {}
 
-    @Post('login')
-    @UseGuards(LocalAuthGuard)
-    public async login(@Request() req) {
-        return { token: this.accountService.authorize(req.user) };
-    }
-
-    @Post('register')
-    public async register(@Query() { username, password }: RegisterDto) {
-        let registerResponse = await this.accountService.register(username, password);
-        if (!registerResponse) throw new HttpException('Cannot create an account. The most likely reason - username is busy.', 400);
-        return registerResponse;
-    }
-
     @Get('discord')
     @UseGuards(DiscordAuthGuard)
     public async discordLogin() {
@@ -35,6 +22,6 @@ export class AuthController {
     @Get('discord/callback')
     @UseGuards(DiscordAuthGuard)
     public async discordCallback(@Request() req) {
-        return { token: this.accountService.authorize(req.user) };
+        return { token: this.accountService.signIn(req.user) };
     }
 }
