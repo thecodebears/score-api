@@ -1,10 +1,10 @@
 import { Column, Entity, Index } from 'typeorm';
-import { BaseEntity } from '../base.entity';
+import { ModelEntity } from '../model.entity';
 import { Cart } from './account.types';
 
 
 @Entity()
-export abstract class Account extends BaseEntity {
+export abstract class Account extends ModelEntity {
     @Column('varchar', { length: 256 })
     @Index({ unique: true })
     public name: string;
