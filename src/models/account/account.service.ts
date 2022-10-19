@@ -3,14 +3,13 @@ import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Account } from './account.entity';
-import { EntityService } from '../base.service';
+import { ModelService } from '../model.service';
 import { JwtService } from "@nestjs/jwt";
-import { RegistrationResponse } from "./account.types";
-import { ConnectionService } from "../connection/connection.service";
+import { SignUpResponse } from "./account.types";
 
 
 @Injectable()
-export class AccountService extends EntityService<Account> {
+export class AccountService extends ModelService<Account> {
     constructor(
         @InjectRepository(Account) protected readonly repository: Repository<Account>,
         private jwtService: JwtService
@@ -18,10 +17,7 @@ export class AccountService extends EntityService<Account> {
         super();
     }
 
-    /*
-     * Grants JWT token for access.
-     */
-    public authorize(account: Account): string {
+    public signIn(account: Account): string {
         let payload = {
             scope: 'account',
             id: account.id,
@@ -32,11 +28,11 @@ export class AccountService extends EntityService<Account> {
         return this.jwtService.sign(payload);
     }
 
-    public async register(name: string, password: string): Promise<RegistrationResponse> {
+    public async signUp(name: string, password: string): Promise<SignUpResponse> {
         try {
             let passwordHash = bcrypt.hashSync(password, 10);
             let account = await this.create({ name, password: passwordHash });
-            let token = this.authorize(account);
+            let token = this.signIn(account);
 
             return { account, token };
         } catch(e) {
