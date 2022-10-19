@@ -4,10 +4,8 @@ import { AccountJwtGuard, ApplicationJwtGuard } from '../../guard/jwt.guard';
 import { JwtService } from '@nestjs/jwt';
 import { AdminGuard } from '../../guard/admin.guard';
 import {
-    ModelCreateRequest,
     ModelDeleteRequest,
     ModelGetRequest,
-    ModelSearchRequest,
     ModelUpdateRequest
 } from "../model.types";
 import { Permissions } from '../../decorators/permissions.decorator';
@@ -34,8 +32,8 @@ export class AccountController {
     @Post('create')
     @Permissions('account.create')
     @UseGuards(ApplicationJwtGuard)
-    public async create(@Query() fields: ModelCreateRequest<Account>) {
-        return this.accountService.create(fields);
+    public async create() {
+        return 'Method is depcecated, see /account/signUp.'
     }
 
     @Post('search')
