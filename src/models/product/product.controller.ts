@@ -4,9 +4,10 @@ import { ModelCreateRequest, ModelDeleteRequest, ModelGetRequest, ModelSearchReq
 import { Product } from "./product.entity";
 import { ProductService } from "./product.service";
 import { Permissions } from "../../decorators/permissions.decorator";
+import { ProductCreateRequest } from "./product.types";
 
 
-@Controller()
+@Controller('product')
 export class ProductController {
     constructor(
         private productService: ProductService
@@ -24,17 +25,15 @@ export class ProductController {
     @Post('create')
     @Permissions('product.create')
     @UseGuards(ApplicationJwtGuard)
-    public async create(@Query() fields: ModelCreateRequest<Product>) {
+    public async create(@Query() fields: ProductCreateRequest) {
         return this.productService.create(fields);
     }
 
     @Post('search')
     @Permissions('product.search')
     @UseGuards(ApplicationJwtGuard)
-    public async search(@Query() { id, ...searchFields }: ModelSearchRequest<Product>) {
-        const products = await this.productService.findBy(searchFields);
-        if (!products.length) throw new HttpException('No results.', 404);
-        return { products };
+    public async search() {
+        // Waiting for search engine.
     }
 
     @Post('update')
