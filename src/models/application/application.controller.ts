@@ -1,8 +1,7 @@
 import { Controller, HttpException, Query, UseGuards, Post, Get, Response } from '@nestjs/common';
 import { ApplicationService } from './application.service';
-import { AccountJwtGuard } from '../../auth/guard/jwt.guard';
-import { JwtService } from '@nestjs/jwt';
-import { AdminGuard } from '../../auth/guard/admin.guard';
+import { AccountJwtGuard } from '../../guard/jwt.guard';
+import { AdminGuard } from '../../guard/admin.guard';
 import {
     ModelCreateRequest,
     ModelDeleteRequest,
@@ -10,7 +9,6 @@ import {
     ModelSearchRequest,
     ModelUpdateRequest
 } from '../model.types';
-import { Permissions } from '../../decorators/permissions.decorator';
 import { Application } from './application.entity';
 import { ApplicationNewRequest } from './application.types';
 
@@ -24,9 +22,9 @@ export class ApplicationController {
     @Get()
     @UseGuards(AccountJwtGuard, AdminGuard)
     public async get(@Query() { id, fields }: ModelGetRequest) {
-        const account = await this.applicationService.findOneBy({ id });
-        if (!account) throw new HttpException('Application not found.', 404);
-        return fields ? account.pick(fields?.split(/\,/g)) : account;
+        const application = await this.applicationService.findOneBy({ id });
+        if (!application) throw new HttpException('Application not found.', 404);
+        return fields ? application.pick(fields?.split(/\,/g)) : application;
     }
 
     @Post('create')
@@ -38,9 +36,9 @@ export class ApplicationController {
     @Post('search')
     @UseGuards(AccountJwtGuard, AdminGuard)
     public async search(@Query() { id, ...searchFields }: ModelSearchRequest<Application>) {
-        const accounts = await this.applicationService.findBy(searchFields);
-        if (!accounts.length) throw new HttpException('No results.', 404);
-        return { accounts };
+        const applications = await this.applicationService.findBy(searchFields);
+        if (!applications.length) throw new HttpException('No results.', 404);
+        return { applications };
     }
 
     @Post('update')
@@ -49,10 +47,10 @@ export class ApplicationController {
         @Query() { id, ...overrideFields }: ModelUpdateRequest<Application>,
         @Response({ passthrough: true }) res
     ) {
-        let account = await this.applicationService.findOneBy({ id });
-        if (!account) throw new HttpException('Application not found.', 404);
+        let application = await this.applicationService.findOneBy({ id });
+        if (!application) throw new HttpException('Application not found.', 404);
 
-        let updateResult = await this.applicationService.update(account, overrideFields);
+        let updateResult = await this.applicationService.update(application, overrideFields);
         if (!updateResult) throw new HttpException('Failed to update application. Check your parameters, it may be incorrect.', 500);
 
         res.status(200);
@@ -64,10 +62,10 @@ export class ApplicationController {
         @Query() { id }: ModelDeleteRequest,
         @Response({ passthrough: true }) res
     ) {
-        let account = await this.applicationService.findOneBy({ id });
-        if (!account) throw new HttpException('Application not found.', 404);
+        let application = await this.applicationService.findOneBy({ id });
+        if (!application) throw new HttpException('Application not found.', 404);
 
-        await this.applicationService.remove(account);
+        await this.applicationService.remove(application);
 
         res.status(200);
     }
