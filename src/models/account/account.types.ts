@@ -1,3 +1,4 @@
+import { IsString, IsNotEmpty } from "class-validator";
 import { Account } from "./account.entity";
 
 type ProductId = string;
@@ -14,10 +15,10 @@ export type SignUpResponse = {
 
 export class AccountSignUpRequest {
     @IsString()
-    @IsNotNull()
+    @IsNotEmpty()
     username: string;
 
     @IsString()
-    @IsNotNull()
+    @IsNotEmpty()
     password: string;
 }
