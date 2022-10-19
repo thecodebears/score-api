@@ -1,10 +1,10 @@
-import { PrimaryGeneratedColumn, Column, UpdateDateColumn, CreateDateColumn, Entity } from 'typeorm';
-import { BaseEntity } from '../base.entity';
+import { Column, Entity } from 'typeorm';
+import { ModelEntity } from '../model.entity';
 import { ProductFeatures } from './product.types';
 
 
 @Entity()
-export abstract class Product extends BaseEntity {
+export abstract class Product extends ModelEntity {
     @Column('varchar', { length: 256 })
     public label: string;
 
