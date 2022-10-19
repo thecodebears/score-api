@@ -1,9 +1,10 @@
-import { PrimaryGeneratedColumn, Column, UpdateDateColumn, CreateDateColumn, Entity } from 'typeorm';
-import { BaseEntity } from '../base.entity';
+import { Column, Entity } from 'typeorm';
+import { ModelEntity } from '../model.entity';
+import { ProductFeatures } from './product.types';
 
 
 @Entity()
-export abstract class Product extends BaseEntity {
+export abstract class Product extends ModelEntity {
     @Column('varchar', { length: 256 })
     public label: string;
 
@@ -13,8 +14,8 @@ export abstract class Product extends BaseEntity {
     @Column('varchar')
     public description: string;
 
-    @Column('float')
-    public rating: number;
+    @Column('int', { array: true, default: [] })
+    public rates: number;
 
     @Column('varchar')
     public category: string;
@@ -25,15 +26,12 @@ export abstract class Product extends BaseEntity {
     @Column('int')
     public quantity: number;
 
-    @Column('int')
+    @Column('int', { default: 0 })
     public sold: number;
 
-    @Column('varchar')
-    public status: string;
+    @Column('boolean')
+    public delivered: boolean;
 
-    @Column('date')
-    public firstDelivery: Date;
-
-    @Column('json')
-    public features: string;
+    @Column('jsonb')
+    public features: ProductFeatures;
 }
