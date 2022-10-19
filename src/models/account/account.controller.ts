@@ -13,6 +13,7 @@ import {
 import { Permissions } from '../../decorators/permissions.decorator';
 import { Account } from './account.entity';
 import { AccountSignUpRequest } from './account.types';
+import { LocalAuthGuard } from 'src/guard/localAuth.guard';
 
 
 @Controller('account')
@@ -40,10 +41,8 @@ export class AccountController {
     @Post('search')
     @Permissions('account.search')
     @UseGuards(ApplicationJwtGuard)
-    public async search(@Query() { id, ...searchFields }: ModelSearchRequest<Account>) {
-        const accounts = await this.accountService.findBy(searchFields);
-        if (!accounts.length) throw new HttpException('No results.', 404);
-        return { accounts };
+    public async search() {
+        // Waiting for search engine.
     }
 
     @Post('update')
@@ -86,8 +85,8 @@ export class AccountController {
 
     @Post('signin')
     @Permissions('account.signin')
-    @UseGuards(ApplicationJwtGuard)
+    @UseGuards(ApplicationJwtGuard, LocalAuthGuard)
     public async signIn(@Request() req) {
-        return this.accountService.signIn(req.user);
+        return { token: this.accountService.signIn(req.user) };
     }
 }
