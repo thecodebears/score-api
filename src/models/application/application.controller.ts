@@ -76,15 +76,18 @@ export class ApplicationController {
         res.status(200);
     }
 
+    /*
+     * Creates entity instances as /create, but do authorization as well.
+     */
     @Post('new')
-    @Permissions('application.signup')
+    @Permissions('application.new')
     @UseGuards(AccountJwtGuard, AdminGuard)
     public async new(@Query() { name, description, permissions }: ApplicationNewRequest) {
         return this.applicationService.new(name, description, permissions.split(/\,/g));
     }
 
     @Post('authorize')
-    @Permissions('application.signin')
+    @Permissions('application.authorize')
     @UseGuards(AccountJwtGuard, AdminGuard)
     public async authorize(@Query() { id }: ModelIndexationRequest) {
         let application = await this.applicationService.findOneBy({ id });
