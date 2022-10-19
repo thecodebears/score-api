@@ -1,8 +1,8 @@
 import { FindManyOptions, ObjectLiteral, Repository } from "typeorm";
-import { Columns } from "./base.types";
+import { Columns } from "./model.types";
 
 
-export class EntityService<T extends ObjectLiteral> {
+export class ModelService<T extends ObjectLiteral> {
     protected repository: Repository<T>;
 
     public async create(rows: Columns<T>): Promise<T> {

@@ -1,8 +1,9 @@
 import { PrimaryGeneratedColumn, Column, UpdateDateColumn, CreateDateColumn, Entity } from 'typeorm';
+import { Columns } from './model.types';
 
 
 @Entity()
-export abstract class BaseEntity {
+export abstract class ModelEntity {
     @PrimaryGeneratedColumn('uuid')
     public id: string;
 
