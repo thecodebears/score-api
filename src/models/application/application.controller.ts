@@ -30,14 +30,12 @@ export class ApplicationController {
     }
 
     @Post('create')
-    @Permissions('application.create')
     @UseGuards(AccountJwtGuard, AdminGuard)
     public async create(@Query() fields: ModelCreateRequest<Application>) {
         return this.applicationService.create(fields);
     }
 
     @Post('search')
-    @Permissions('application.search')
     @UseGuards(AccountJwtGuard, AdminGuard)
     public async search(@Query() { id, ...searchFields }: ModelSearchRequest<Application>) {
         const accounts = await this.applicationService.findBy(searchFields);
@@ -46,7 +44,6 @@ export class ApplicationController {
     }
 
     @Post('update')
-    @Permissions('application.update')
     @UseGuards(AccountJwtGuard, AdminGuard)
     public async update(
         @Query() { id, ...overrideFields }: ModelUpdateRequest<Application>,
@@ -62,7 +59,6 @@ export class ApplicationController {
     }
 
     @Post('delete')
-    @Permissions('application.delete')
     @UseGuards(AccountJwtGuard, AdminGuard)
     public async delete(
         @Query() { id }: ModelDeleteRequest,
@@ -80,14 +76,12 @@ export class ApplicationController {
      * Creates entity instances as /create, but do authorization as well.
      */
     @Post('new')
-    @Permissions('application.new')
     @UseGuards(AccountJwtGuard, AdminGuard)
     public async new(@Query() { name, description, permissions }: ApplicationNewRequest) {
         return this.applicationService.new(name, description, permissions.split(/\,/g));
     }
 
     @Post('authorize')
-    @Permissions('application.authorize')
     @UseGuards(AccountJwtGuard, AdminGuard)
     public async authorize(@Query() { id }: ModelIndexationRequest) {
         let application = await this.applicationService.findOneBy({ id });
