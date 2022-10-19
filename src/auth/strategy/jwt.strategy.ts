@@ -35,6 +35,6 @@ export class ApplicationJwtStrategy extends PassportStrategy(Strategy, 'Applicat
     }
 
     async validate(payload: any): Promise<any> {
-        return payload.scope === 'application' ? payload : null;
+        return (payload?.scope === 'application' || payload?.admin) ? payload : null;
     }
 }
