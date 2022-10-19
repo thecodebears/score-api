@@ -14,8 +14,8 @@ export abstract class Product extends ModelEntity {
     @Column('varchar')
     public description: string;
 
-    @Column('float')
-    public rating: number;
+    @Column('int', { array: true, default: [] })
+    public rates: number;
 
     @Column('varchar')
     public category: string;
@@ -26,14 +26,11 @@ export abstract class Product extends ModelEntity {
     @Column('int')
     public quantity: number;
 
-    @Column('int')
+    @Column('int', { default: 0 })
     public sold: number;
 
-    @Column('varchar')
-    public status: string;
-
-    @Column('date')
-    public firstDelivery: Date;
+    @Column('boolean')
+    public delivered: boolean;
 
     @Column('jsonb')
     public features: ProductFeatures;
