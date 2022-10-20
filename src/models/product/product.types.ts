@@ -1,12 +1,15 @@
 import { Transform } from "class-transformer";
 import {IsBoolean, IsJSON, IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { ModelIndexationRequest } from "../model.types";
 
-type ProductFeatureLabel = string;
-
-type ProductFeatureValue = string;
 
 export type ProductFeatures = {
-    [key: ProductFeatureLabel]: ProductFeatureValue
+    [key: string]: string
+};
+
+export type ProductReview = {
+    review: string,
+    author: string
 };
 
 export class ProductCreateRequest {
@@ -44,4 +47,19 @@ export class ProductCreateRequest {
     @IsNotEmpty()
     @IsJSON()
     features: ProductFeatures;
+}
+
+export class ProductAddReviewRequest extends ModelIndexationRequest {
+    @IsNotEmpty()
+    @IsString()
+    author: string;
+
+    @IsNotEmpty()
+    @IsNumber()
+    @Transform(({ value }) => parseInt(value))
+    rating: number;
+
+    @IsNotEmpty()
+    @IsString()
+    details: string;
 }
