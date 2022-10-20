@@ -11,6 +11,7 @@ import {
 } from '../model.types';
 import { Application } from './application.entity';
 import { ApplicationNewRequest } from './application.types';
+import { Permissions } from 'src/utils/permissions';
 
 
 @Controller('application')
@@ -75,7 +76,9 @@ export class ApplicationController {
     @Post('new')
     @UseGuards(AccountJwtGuard, AdminGuard)
     public async new(@Query() { name, description, permissions }: ApplicationNewRequest) {
-        return this.applicationService.new(name, description, permissions.split(/\,/g));
+        let permissionsList = permissions.split(/\,/g);
+        if (!Permissions.validatePermissions(permissionsList)) throw new HttpException('Invalid permissions.', 400);
+        return this.applicationService.new(name, description, permissionsList);
     }
 
     @Post('authorize')
