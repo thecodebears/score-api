@@ -1,6 +1,6 @@
 import { Controller, Get, HttpException, Post, Query, UseGuards, Response } from "@nestjs/common";
 import { SetPermissions, Permissions } from "src/utils/permissions";
-import { ApplicationJwtGuard } from "../../guard/jwt.guard";
+import { ApplicationJwtGuard } from "../../guards/jwt.guard";
 import { ModelCreateRequest, ModelDeleteRequest, ModelGetRequest, ModelSearchRequest, ModelUpdateRequest } from "../model.types";
 import { Product } from "./product.entity";
 import { ProductService } from "./product.service";

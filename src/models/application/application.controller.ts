@@ -1,7 +1,7 @@
 import { Controller, HttpException, Query, UseGuards, Post, Get, Response } from '@nestjs/common';
 import { ApplicationService } from './application.service';
-import { AccountJwtGuard } from '../../guard/jwt.guard';
-import { AdminGuard } from '../../guard/admin.guard';
+import { AccountJwtGuard } from '../../guards/jwt.guard';
+import { AdminGuard } from '../../guards/admin.guard';
 import {
     ModelCreateRequest,
     ModelDeleteRequest,

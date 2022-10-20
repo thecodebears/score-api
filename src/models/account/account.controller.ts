@@ -1,8 +1,8 @@
 import { Controller, HttpException, Query, UseGuards, Post, Get, Response, Request } from '@nestjs/common';
 import { AccountService } from './account.service';
-import { AccountJwtGuard, ApplicationJwtGuard } from '../../guard/jwt.guard';
+import { AccountJwtGuard, ApplicationJwtGuard } from '../../guards/jwt.guard';
 import { JwtService } from '@nestjs/jwt';
-import { AdminGuard } from '../../guard/admin.guard';
+import { AdminGuard } from '../../guards/admin.guard';
 import {
     ModelDeleteRequest,
     ModelGetRequest,
@@ -10,7 +10,7 @@ import {
 } from "../model.types";
 import { Account } from './account.entity';
 import { AccountSignUpRequest } from './account.types';
-import { LocalAuthGuard } from 'src/guard/localAuth.guard';
+import { LocalAuthGuard } from 'src/guards/localAuth.guard';
 import { SetPermissions, Permissions } from 'src/utils/permissions';
 
 

@@ -1,6 +1,6 @@
 import { Controller, UseGuards, Request, Get } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { DiscordAuthGuard } from '../guard/discordAuth.guard';
+import { DiscordAuthGuard } from '../guards/discordAuth.guard';
 import { AccountService } from 'src/models/account/account.service';
 
 
