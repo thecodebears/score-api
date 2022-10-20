@@ -1,6 +1,6 @@
 import { Column, Entity } from 'typeorm';
 import { ModelEntity } from '../model.entity';
-import { ProductFeatures } from './product.types';
+import { ProductFeatures, ProductReview } from './product.types';
 
 
 @Entity()
@@ -14,8 +14,8 @@ export abstract class Product extends ModelEntity {
     @Column('varchar')
     public description: string;
 
-    @Column('int', { array: true, default: [] })
-    public rates: number;
+    @Column('jsonb', { default: [] })
+    public reviews: ProductReview[];
 
     @Column('varchar')
     public category: string;
