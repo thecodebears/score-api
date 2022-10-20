@@ -8,14 +8,18 @@ import {
     ModelGetRequest,
     ModelUpdateRequest
 } from "../model.types";
-import { Permissions } from '../../decorators/permissions.decorator';
 import { Account } from './account.entity';
 import { AccountSignUpRequest } from './account.types';
 import { LocalAuthGuard } from 'src/guard/localAuth.guard';
+import { SetPermissions, Permissions } from 'src/utils/permissions';
 
 
 @Controller('account')
 export class AccountController {
+    static {
+        Permissions.enlistPermissionsGroup('account', [ 'get', 'create', 'update', 'delete' ]);
+    }
+
     constructor(
         private accountService: AccountService,
         private jwtService: JwtService
@@ -30,14 +34,14 @@ export class AccountController {
     }
 
     @Post('create')
-    @Permissions('account.create')
+    @SetPermissions('account.create')
     @UseGuards(ApplicationJwtGuard)
     public async create() {
         return 'Method is depcecated, see /account/signUp.'
     }
 
     @Post('search')
-    @Permissions('account.search')
+    @SetPermissions('account.get')
     @UseGuards(ApplicationJwtGuard)
     public async search() {
         // Waiting for search engine.
@@ -45,7 +49,7 @@ export class AccountController {
     }
 
     @Post('update')
-    @Permissions('account.update')
+    @SetPermissions('account.update')
     @UseGuards(ApplicationJwtGuard)
     public async update(
         @Query() { id, ...overrideFields }: ModelUpdateRequest<Account>,
@@ -61,7 +65,7 @@ export class AccountController {
     }
 
     @Post('delete')
-    @Permissions('account.delete')
+    @SetPermissions('account.delete')
     @UseGuards(ApplicationJwtGuard)
     public async delete(
         @Query() { id }: ModelDeleteRequest,
@@ -76,14 +80,14 @@ export class AccountController {
     }
 
     @Post('signup')
-    @Permissions('account.signup')
+    @SetPermissions('account.create')
     @UseGuards(ApplicationJwtGuard)
     public async signUp(@Query() { username, password }: AccountSignUpRequest) {
         return this.accountService.signUp(username, password);
     }
 
     @Post('signin')
-    @Permissions('account.signin')
+    @SetPermissions('account.get')
     @UseGuards(ApplicationJwtGuard, LocalAuthGuard)
     public async signIn(@Request() req) {
         return { token: this.accountService.signIn(req.user) };
