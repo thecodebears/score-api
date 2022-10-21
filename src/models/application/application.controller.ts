@@ -1,7 +1,7 @@
-import { Controller, HttpException, Query, UseGuards, Post, Get, Response } from '@nestjs/common';
+import { Controller, HttpException, Query, UseGuards, Post, Get, Response, ParseUUIDPipe } from '@nestjs/common';
 import { ApplicationService } from './application.service';
-import { AccountJwtGuard } from '../../guards/jwt.guard';
-import { AdminGuard } from '../../guards/admin.guard';
+import { AccountJwtGuard } from '../../security/guards/jwt.guard';
+import { AdminGuard } from '../../security/guards/admin.guard';
 import {
     ModelCreateRequest,
     ModelDeleteRequest,
@@ -11,7 +11,8 @@ import {
 } from '../model.types';
 import { Application } from './application.entity';
 import { ApplicationNewRequest } from './application.types';
-import { Permissions } from 'src/utils/permissions';
+import { Permissions } from 'src/security/permissions/permissions';
+import { ApplicationIndexationPipe } from './validation/pipes/indexation.pipe';
 
 
 @Controller('application')
@@ -22,9 +23,10 @@ export class ApplicationController {
 
     @Get()
     @UseGuards(AccountJwtGuard, AdminGuard)
-    public async get(@Query() { id, fields }: ModelGetRequest) {
-        const application = await this.applicationService.findOneBy({ id });
-        if (!application) throw new HttpException('Application not found.', 404);
+    public async get(
+        @Query('id', ParseUUIDPipe, ApplicationIndexationPipe) application,
+        @Query() { fields }: ModelGetRequest
+    ) {
         return fields ? application.pick(fields?.split(/\,/g)) : application;
     }
 
@@ -44,12 +46,10 @@ export class ApplicationController {
     @Post('update')
     @UseGuards(AccountJwtGuard, AdminGuard)
     public async update(
-        @Query() { id, ...overrideFields }: ModelUpdateRequest<Application>,
+        @Query('id', ParseUUIDPipe, ApplicationIndexationPipe) application,
+        @Query() overrideFields: ModelUpdateRequest<Application>,
         @Response({ passthrough: true }) res
     ) {
-        let application = await this.applicationService.findOneBy({ id });
-        if (!application) throw new HttpException('Application not found.', 404);
-
         let updateResult = await this.applicationService.update(application, overrideFields);
         if (!updateResult) throw new HttpException('Failed to update application. Check your parameters, it may be incorrect.', 500);
 
@@ -83,9 +83,7 @@ export class ApplicationController {
 
     @Post('authorize')
     @UseGuards(AccountJwtGuard, AdminGuard)
-    public async authorize(@Query() { id }: ModelIndexationRequest) {
-        let application = await this.applicationService.findOneBy({ id });
-        if (!application) throw new HttpException('Application not found.', 404);
+    public async authorize(@Query('id', ParseUUIDPipe, ApplicationIndexationPipe) application) {
         return { token: this.applicationService.authorize(application) }
     }
 }
