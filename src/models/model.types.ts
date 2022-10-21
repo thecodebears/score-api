@@ -15,7 +15,6 @@ export class ModelIndexationRequest {
  */
 export class ModelGetRequest extends ModelIndexationRequest {
     @Allow()
-    @IsString()
     fields: string;
 }
 
