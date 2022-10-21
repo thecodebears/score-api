@@ -1,17 +1,20 @@
 import * as bcrypt from 'bcrypt';
-import { Injectable } from "@nestjs/common";
+import { Injectable, HttpException } from '@nestjs/common';
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Account } from './account.entity';
 import { ModelService } from '../model.service';
 import { JwtService } from "@nestjs/jwt";
 import { SignUpResponse } from "./account.types";
+import { ConnectionPlatform } from './connection/connection.types';
+import { ConnectionService } from './connection/connection.service';
 
 
 @Injectable()
 export class AccountService extends ModelService<Account> {
     constructor(
         @InjectRepository(Account) protected readonly repository: Repository<Account>,
+        private connectionService: ConnectionService,
         private jwtService: JwtService
     ) {
         super();
@@ -29,14 +32,28 @@ export class AccountService extends ModelService<Account> {
     }
 
     public async signUp(name: string, password: string): Promise<SignUpResponse> {
-        try {
-            let passwordHash = bcrypt.hashSync(password, 10);
-            let account = await this.create({ name, password: passwordHash });
-            let token = this.signIn(account);
+        let passwordHash = bcrypt.hashSync(password, 10);
+        let account = await this.create({ name, password: passwordHash });
+        let token = this.signIn(account);
 
-            return { account, token };
-        } catch(e) {
-            return null;
+        return { account, token };
+    }
+
+    /*
+     * Used to authorization from trusted platforms.
+     */
+    public async connect(platform: ConnectionPlatform, key: string, name: string): Promise<Account> {
+        let connection = await this.connectionService.findOneBy({ key, platform });
+
+        if (!connection) {
+            let password = Math.random().toString(16).slice(2);
+            let { account } = await this.signUp(name, password);
+
+            await this.connectionService.create({ platform: 'discord', key, account: account.id });
+
+            return account;
+        } else {
+            return this.findOneBy({ id: connection.account });
         }
     }
 }
