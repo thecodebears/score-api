@@ -4,7 +4,7 @@ import { ModelEntity } from 'src/models/model.entity';
 import { Product } from 'src/models/product/product.entity';
 import { Application } from 'src/models/application/application.entity';
 import { Account } from 'src/models/account/account.entity';
-import { Connection } from 'src/models/connection/connection.entity';
+import { Connection } from 'src/models/account/connection/connection.entity';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 import { Review } from './src/models/product/review/review.entity';
 
