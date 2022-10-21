@@ -8,7 +8,7 @@ import { Review } from './review/review.entity';
 
 @Module({
     imports: [
-        TypeOrmModule.forFeature([ Product, Review ]),
+        TypeOrmModule.forFeature([ Product, Review ])
     ],
     providers: [ ProductService ],
     controllers: [ ProductController ],
