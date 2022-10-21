@@ -1,5 +1,5 @@
 import { Column, Entity } from 'typeorm';
-import { ModelEntity } from '../model.entity';
+import { ModelEntity } from '../../model.entity';
 import { ConnectionPlatform } from './connection.types';
 
 
