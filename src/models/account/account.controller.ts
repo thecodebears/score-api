@@ -1,8 +1,8 @@
-import { Controller, HttpException, Query, UseGuards, Post, Get, Response, Request } from '@nestjs/common';
+import { Controller, HttpException, Query, UseGuards, Post, Get, Response, Request, UsePipes, ParseUUIDPipe } from '@nestjs/common';
 import { AccountService } from './account.service';
-import { AccountJwtGuard, ApplicationJwtGuard } from '../../guards/jwt.guard';
+import { AccountJwtGuard, ApplicationJwtGuard } from '../../security/guards/jwt.guard';
 import { JwtService } from '@nestjs/jwt';
-import { AdminGuard } from '../../guards/admin.guard';
+import { AdminGuard } from '../../security/guards/admin.guard';
 import {
     ModelDeleteRequest,
     ModelGetRequest,
@@ -10,8 +10,10 @@ import {
 } from "../model.types";
 import { Account } from './account.entity';
 import { AccountSignUpRequest } from './account.types';
-import { LocalAuthGuard } from 'src/guards/localAuth.guard';
-import { SetPermissions, Permissions } from 'src/utils/permissions';
+import { LocalAuthGuard } from 'src/security/guards/localAuth.guard';
+import { SetPermissions, Permissions } from 'src/security/permissions/permissions';
+import { DiscordAuthGuard } from 'src/security/guards/discordAuth.guard';
+import { AccountIndexationPipe } from './validation/pipes/indexation.pipe';
 
 
 @Controller('account')
@@ -27,9 +29,10 @@ export class AccountController {
 
     @Get()
     @UseGuards(AccountJwtGuard, AdminGuard)
-    public async get(@Query() { id, fields }: ModelGetRequest) {
-        const account = await this.accountService.findOneBy({ id });
-        if (!account) throw new HttpException('Account not found.', 404);
+    public async get(
+        @Query('id', ParseUUIDPipe, AccountIndexationPipe) account,
+        @Query() { fields }: ModelGetRequest
+    ) {
         return fields ? account.pick(fields?.split(/\,/g)) : account;
     }
 
@@ -52,12 +55,10 @@ export class AccountController {
     @SetPermissions('account.update')
     @UseGuards(ApplicationJwtGuard)
     public async update(
-        @Query() { id, ...overrideFields }: ModelUpdateRequest<Account>,
+        @Query('id', ParseUUIDPipe, AccountIndexationPipe) account,
+        @Query() overrideFields: ModelUpdateRequest<Account>,
         @Response({ passthrough: true }) res
     ) {
-        let account = await this.accountService.findOneBy({ id });
-        if (!account) throw new HttpException('Account not found.', 404);
-
         let updateResult = await this.accountService.update(account, overrideFields);
         if (!updateResult) throw new HttpException('Failed to update account. Check your parameters, it may be incorrect.', 500);
 
@@ -68,14 +69,10 @@ export class AccountController {
     @SetPermissions('account.delete')
     @UseGuards(ApplicationJwtGuard)
     public async delete(
-        @Query() { id }: ModelDeleteRequest,
+        @Query('id', ParseUUIDPipe, AccountIndexationPipe) account,
         @Response({ passthrough: true }) res
     ) {
-        let account = await this.accountService.findOneBy({ id });
-        if (!account) throw new HttpException('Account not found.', 404);
-
         await this.accountService.remove(account);
-
         res.status(200);
     }
 
@@ -90,6 +87,18 @@ export class AccountController {
     @SetPermissions('account.get')
     @UseGuards(ApplicationJwtGuard, LocalAuthGuard)
     public async signIn(@Request() req) {
+        return { token: this.accountService.signIn(req.user) };
+    }
+
+    @Get('signin/discord')
+    @UseGuards(DiscordAuthGuard)
+    public async discordLogin() {
+        return;
+    }
+
+    @Get('signin/discord/callback')
+    @UseGuards(DiscordAuthGuard)
+    public async discordCallback(@Request() req) {
         return { token: this.accountService.signIn(req.user) };
     }
 }
