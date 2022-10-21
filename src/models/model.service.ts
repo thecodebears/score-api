@@ -1,4 +1,4 @@
-import { FindManyOptions, ObjectLiteral, Repository } from "typeorm";
+import { ObjectLiteral, Repository } from "typeorm";
 import { Columns } from "./model.types";
 
 
@@ -13,7 +13,7 @@ export class ModelService<T extends ObjectLiteral> {
 
     public async exists(findByColumns: Columns<T>): Promise<boolean> {
         let rows: T = await this.findOneBy(findByColumns);
-        return !!rows.length;
+        return !!rows?.length;
     }
 
     public async remove(entity: T): Promise<T> {
@@ -26,14 +26,10 @@ export class ModelService<T extends ObjectLiteral> {
     }
 
     public async findBy(columns: Columns<T>): Promise<T[]> {
-        return this.repository.find({ where:
-            Object.entries(columns).map(e => { return { [e[0]]: e[1] } })
-        } as FindManyOptions<T>);
+        return this.repository.find({ where: columns });
     }
 
     public async findOneBy(columns: Columns<T>): Promise<T> {
-        return this.repository.findOne({ where:
-            Object.entries(columns).map(e => { return { [e[0]]: e[1] } })
-        } as FindManyOptions<T>);
+        return this.repository.findOne({ where: columns });
     }
 }

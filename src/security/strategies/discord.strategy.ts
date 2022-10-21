@@ -1,19 +1,15 @@
 import { Profile, Strategy } from 'passport-discord';
 import { PassportStrategy } from '@nestjs/passport';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { AuthService } from '../auth/auth.service';
-import { AccountService } from '../models/account/account.service';
-import { Account } from '../models/account/account.entity';
-import { ConnectionService } from '../models/connection/connection.service';
+import { Injectable } from '@nestjs/common';
+import { AccountService } from '../../models/account/account.service';
+import { Account } from '../../models/account/account.entity';
 import env from 'environment';
 
 
 @Injectable()
 export class DiscordStrategy extends PassportStrategy(Strategy, 'Discord') {
     constructor(
-        private authService: AuthService,
-        private accountService: AccountService,
-        private connectionService: ConnectionService
+        private accountService: AccountService
     ) {
         super({
             clientID: env.credentials.discord.clientId,
@@ -26,6 +22,6 @@ export class DiscordStrategy extends PassportStrategy(Strategy, 'Discord') {
     public async validate(accessToken: string, refreshToken: string, profile: Profile): Promise<Account> {
         let { id, username } = profile;
 
-        return this.authService.connect('discord', id, username);
+        return this.accountService.connect('discord', id, username);
     }
 }
