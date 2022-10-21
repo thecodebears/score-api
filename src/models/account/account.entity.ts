@@ -6,7 +6,6 @@ import { Cart } from './account.types';
 @Entity()
 export abstract class Account extends ModelEntity {
     @Column('varchar', { length: 256 })
-    @Index({ unique: true })
     public name: string;
 
     @Column('varchar')
