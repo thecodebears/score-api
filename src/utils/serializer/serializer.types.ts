@@ -1,0 +1,1 @@
+export type Done<T> = (err: Error, user: T) => void;
