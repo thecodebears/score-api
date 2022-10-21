@@ -1,19 +1,17 @@
 import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AuthModule } from './auth/auth.module';
 import { ApplicationModule } from './models/application/application.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import ormConfig from 'ormconfig';
-import { ConnectionModule } from './models/connection/connection.module';
 import { ProductModule } from './models/product/product.module';
+import { AccountModule } from './models/account/account.module';
 
 
 @Module({
     imports: [
-        AuthModule,
+        AccountModule,
         ApplicationModule,
-        ConnectionModule,
         ProductModule,
         TypeOrmModule.forRoot(ormConfig)
     ],
