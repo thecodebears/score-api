@@ -1,11 +1,10 @@
 import { IsString, IsNotEmpty } from "class-validator";
 import { Account } from "./account.entity";
 
-type ProductId = string;
-type Count = number;
 
-export type Cart = {
-    [key: ProductId]: Count
+export type CartItem = {
+    id: string,
+    count: number
 };
 
 export type SignUpResponse = {
