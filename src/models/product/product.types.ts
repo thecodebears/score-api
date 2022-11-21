@@ -1,5 +1,5 @@
 import { Transform } from "class-transformer";
-import {IsBoolean, IsJSON, IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { IsBoolean, IsJSON, IsNotEmpty, IsNumber, IsString } from "class-validator";
 import { ModelIndexationRequest } from "../model.types";
 
 
@@ -7,19 +7,10 @@ export type ProductFeatures = {
     [key: string]: string
 };
 
-export type ProductReview = {
-    review: string,
-    author: string
-};
-
 export class ProductCreateRequest {
     @IsNotEmpty()
     @IsString()
     label: string;
-
-    @IsNotEmpty()
-    @IsString()
-    sublabel: string;
 
     @IsNotEmpty()
     @IsString()
@@ -32,7 +23,12 @@ export class ProductCreateRequest {
     @IsNotEmpty()
     @IsNumber()
     @Transform(({ value }) => parseInt(value))
-    price: number;
+    costPrice: number;
+
+    @IsNotEmpty()
+    @IsNumber()
+    @Transform(({ value }) => parseFloat(value))
+    markup: number;
 
     @IsNotEmpty()
     @IsNumber()
@@ -40,26 +36,28 @@ export class ProductCreateRequest {
     quantity: number;
 
     @IsNotEmpty()
-    @IsBoolean()
-    @Transform(({ value }) => value === 'true')
-    delivered: boolean;
-
-    @IsNotEmpty()
     @IsJSON()
     features: ProductFeatures;
+
+    @IsNotEmpty()
+    @IsString()
+    @Transform(({ value }) => value.split(/\,/g).filter(e => e))
+    tags: string[];
+
+    @IsNotEmpty()
+    @IsString()
+    @Transform(({ value }) => value.split(/\;/g).filter(e => e))
+    photos: string[];
 }
 
-export class ProductAddReviewRequest extends ModelIndexationRequest {
-    @IsNotEmpty()
+export class ProductSearchRequest {
     @IsString()
-    author: string;
-
-    @IsNotEmpty()
-    @IsNumber()
-    @Transform(({ value }) => parseInt(value))
-    rating: number;
-
-    @IsNotEmpty()
+    query: string;
+    
     @IsString()
-    details: string;
+    category: string;
+
+    @IsString()
+    @Transform(({ value }) => value.split(/\;/g).filter(e => e))
+    tags: string[]
 }
