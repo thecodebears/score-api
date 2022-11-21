@@ -1,11 +1,11 @@
 import { Controller, Get, HttpException, Post, Query, UseGuards, Response, ParseUUIDPipe } from "@nestjs/common";
 import { SetPermissions, Permissions } from "src/security/permissions/permissions";
 import { ApplicationJwtGuard } from "../../security/guards/jwt.guard";
-import { ModelCreateRequest, ModelDeleteRequest, ModelGetRequest, ModelSearchRequest, ModelUpdateRequest } from "../model.types";
+import { ModelGetRequest, ModelUpdateRequest } from "../model.types";
 import { Product } from "./product.entity";
 import { ProductService } from "./product.service";
-import { ProductAddReviewRequest, ProductCreateRequest } from "./product.types";
-import { ProductIndexationPipe } from "./validation/pipes/indexation.pipe";
+import { ProductCreateRequest, ProductSearchRequest } from "./product.types";
+import { ProductCodeIndexationPipe, ProductIndexationPipe } from "./validation/pipes/indexation.pipe";
 
 
 @Controller('product')
@@ -18,11 +18,21 @@ export class ProductController {
         private productService: ProductService
     ) {}
 
-    @Get()
+    @Get('getById')
     @SetPermissions('product.get')
     @UseGuards(ApplicationJwtGuard)
-    public async get(
+    public async getById(
         @Query('id', ParseUUIDPipe, ProductIndexationPipe) product,
+        @Query() { fields }: ModelGetRequest
+    ) {
+        return fields ? product.pick(fields?.split(/\,/g)) : product;
+    }
+
+    @Get('getByCode')
+    @SetPermissions('product.get')
+    @UseGuards(ApplicationJwtGuard)
+    public async getByCode(
+        @Query('id', ParseUUIDPipe, ProductCodeIndexationPipe) product,
         @Query() { fields }: ModelGetRequest
     ) {
         return fields ? product.pick(fields?.split(/\,/g)) : product;
@@ -38,9 +48,13 @@ export class ProductController {
     @Post('search')
     @SetPermissions('product.get')
     @UseGuards(ApplicationJwtGuard)
-    public async search() {
-        // Waiting for search engine.
-        return 'Not implemented.';
+    public async search(@Query() { query, category, tags }: ProductSearchRequest) {
+        let list = await (category ? this.productService.findBy({ category }) : this.productService.all());
+
+        return list.filter(p => {
+            let findMatchesIn = p.code.toLowerCase() + p.label.toLowerCase() + p.description.toLowerCase();
+            return tags.every(t => p.tags.includes(t)) || findMatchesIn.indexOf(query?.toLowerCase()) >= 0
+        });
     }
 
     @Post('update')
@@ -66,15 +80,5 @@ export class ProductController {
     ) {
         await this.productService.remove(product);
         res.status(200);
-    }
-
-    @Post('addReview')
-    @SetPermissions('product.update')
-    @UseGuards(ApplicationJwtGuard)
-    public async addReview(
-        @Query('id', ParseUUIDPipe, ProductIndexationPipe) product,
-        @Query() { author, rating, details }: ProductAddReviewRequest
-    ) {
-        return this.productService.addReview(product, { author, rating, details });
     }
 }
