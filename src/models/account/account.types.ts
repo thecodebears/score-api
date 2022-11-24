@@ -1,9 +1,10 @@
-import { IsString, IsNotEmpty } from "class-validator";
+import { Transform } from "class-transformer";
+import { IsString, IsNotEmpty, IsInt } from "class-validator";
 import { Account } from "./account.entity";
 
 
 export type CartItem = {
-    id: string,
+    id: number,
     count: number
 };
 
@@ -20,4 +21,11 @@ export class AccountSignUpRequest {
     @IsString()
     @IsNotEmpty()
     password: string;
+}
+
+export class AccountAddToCartRequest {
+    @IsInt()
+    @IsNotEmpty()
+    @Transform(({ value }) => parseInt(value))
+    count: number;
 }

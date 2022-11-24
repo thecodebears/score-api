@@ -1,13 +1,10 @@
-import { Column, Entity } from 'typeorm';
-import { ModelEntity } from '../model.entity';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { NumberSerializedModelEntity } from '../model.entity';
 import { ProductFeatures } from './product.types';
 
 
 @Entity()
-export abstract class Product extends ModelEntity {
-    @Column('varchar', { length: 4, default: 'A000' })
-    public code: string;
-
+export abstract class Product extends NumberSerializedModelEntity {
     @Column('varchar', { length: 256 })
     public label: string;
 
@@ -32,17 +29,20 @@ export abstract class Product extends ModelEntity {
     @Column('varchar', { array: true })
     public tags: string[];
 
-    @Column('varchar', { array: true, nullable: true })
+    @Column('varchar', { array: true })
     public photos: string[];
 
-    // analytics
+    /**
+     * Rows below are used for analytics.
+     * It contains user id's.
+     */
 
-    @Column('int', { default: 0 })
-    public sales: number;
+    @Column('varchar', { array: true })
+    public sales: string[] = [];
 
-    @Column('int', { default: 0 })
-    public pins: number;
+    @Column('varchar', { array: true })
+    public pins: string[] = [];
 
-    @Column('int', { default: 0 })
-    public views: number;
+    @Column('varchar', { array: true })
+    public views: string[] = [];
 }

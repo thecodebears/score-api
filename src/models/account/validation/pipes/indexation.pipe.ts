@@ -9,7 +9,7 @@ export class AccountIndexationPipe implements PipeTransform {
     ) {}
 
     public async transform(value: any) {
-        let account = await this.accountService.findOneBy({ id: value as string});
+        let account = value ? await this.accountService.findOneBy({ id: value as string }) : null
         if (!account) throw new HttpException('account.entity.notFound', 400);
         return account;
     }

@@ -1,11 +1,13 @@
 import { Transform } from "class-transformer";
-import { IsBoolean, IsJSON, IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { IsArray, IsBoolean, IsJSON, IsNotEmpty, IsNumber, IsString } from "class-validator";
 import { ModelIndexationRequest } from "../model.types";
 
 
 export type ProductFeatures = {
     [key: string]: string
 };
+
+export type ProductAnalyticsAction = 'view' | 'pin' | 'sale';
 
 export class ProductCreateRequest {
     @IsNotEmpty()
@@ -37,15 +39,16 @@ export class ProductCreateRequest {
 
     @IsNotEmpty()
     @IsJSON()
+    @Transform(({ value }) => JSON.parse(value))
     features: ProductFeatures;
 
     @IsNotEmpty()
-    @IsString()
+    @IsArray()
     @Transform(({ value }) => value.split(/\,/g).filter(e => e))
     tags: string[];
 
     @IsNotEmpty()
-    @IsString()
+    @IsArray()
     @Transform(({ value }) => value.split(/\;/g).filter(e => e))
     photos: string[];
 }
@@ -60,4 +63,10 @@ export class ProductSearchRequest {
     @IsString()
     @Transform(({ value }) => value.split(/\;/g).filter(e => e))
     tags: string[]
+}
+
+export class ProductCountActionRequest {
+    @IsNotEmpty()
+    @IsString()
+    type: ProductAnalyticsAction;
 }

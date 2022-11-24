@@ -1,11 +1,12 @@
 import { Controller, Get, HttpException, Post, Query, UseGuards, Response, ParseUUIDPipe } from "@nestjs/common";
 import { SetPermissions, Permissions } from "src/security/permissions/permissions";
 import { ApplicationJwtGuard } from "../../security/guards/jwt.guard";
+import { AccountIndexationPipe } from "../account/validation/pipes/indexation.pipe";
 import { ModelGetRequest, ModelUpdateRequest } from "../model.types";
 import { Product } from "./product.entity";
 import { ProductService } from "./product.service";
-import { ProductCreateRequest, ProductSearchRequest } from "./product.types";
-import { ProductCodeIndexationPipe, ProductIndexationPipe } from "./validation/pipes/indexation.pipe";
+import { ProductCountActionRequest, ProductCreateRequest, ProductSearchRequest } from "./product.types";
+import { ProductIndexationPipe } from "./validation/pipes/indexation.pipe";
 
 
 @Controller('product')
@@ -18,21 +19,11 @@ export class ProductController {
         private productService: ProductService
     ) {}
 
-    @Get('getById')
+    @Get()
     @SetPermissions('product.get')
     @UseGuards(ApplicationJwtGuard)
     public async getById(
-        @Query('id', ParseUUIDPipe, ProductIndexationPipe) product,
-        @Query() { fields }: ModelGetRequest
-    ) {
-        return fields ? product.pick(fields?.split(/\,/g)) : product;
-    }
-
-    @Get('getByCode')
-    @SetPermissions('product.get')
-    @UseGuards(ApplicationJwtGuard)
-    public async getByCode(
-        @Query('id', ParseUUIDPipe, ProductCodeIndexationPipe) product,
+        @Query('id', ProductIndexationPipe) product,
         @Query() { fields }: ModelGetRequest
     ) {
         return fields ? product.pick(fields?.split(/\,/g)) : product;
@@ -52,7 +43,7 @@ export class ProductController {
         let list = await (category ? this.productService.findBy({ category }) : this.productService.all());
 
         return list.filter(p => {
-            let findMatchesIn = p.code.toLowerCase() + p.label.toLowerCase() + p.description.toLowerCase();
+            let findMatchesIn = p.label.toLowerCase() + p.description.toLowerCase();
             return tags.every(t => p.tags.includes(t)) || findMatchesIn.indexOf(query?.toLowerCase()) >= 0
         });
     }
@@ -61,7 +52,7 @@ export class ProductController {
     @SetPermissions('product.update')
     @UseGuards(ApplicationJwtGuard)
     public async update(
-        @Query('id', ParseUUIDPipe, ProductIndexationPipe) product,
+        @Query('id', ProductIndexationPipe) product,
         @Query() overrideFields: ModelUpdateRequest<Product>,
         @Response({ passthrough: true }) res
     ) {
@@ -75,10 +66,25 @@ export class ProductController {
     @SetPermissions('product.delete')
     @UseGuards(ApplicationJwtGuard)
     public async delete(
-        @Query('id', ParseUUIDPipe, ProductIndexationPipe) product,
+        @Query('id', ProductIndexationPipe) product,
         @Response({ passthrough: true }) res
     ) {
         await this.productService.remove(product);
+
+        res.status(200);
+    }
+
+    @Post('countAction')
+    @SetPermissions('product.update')
+    @UseGuards(ApplicationJwtGuard)
+    public async countAction(
+        @Query('id', ProductIndexationPipe) product,
+        @Query('accountId', AccountIndexationPipe) account,
+        @Query() { type }: ProductCountActionRequest,
+        @Response({ passthrough: true }) res
+    ) {
+        await this.productService.countAction(product, account.id, type);
+
         res.status(200);
     }
 }

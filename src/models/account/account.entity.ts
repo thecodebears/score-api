@@ -20,15 +20,15 @@ export abstract class Account extends ModelEntity {
     @Column('boolean', { default: false })
     public admin: boolean = false;
 
-    @Column('jsonb', { array: true, default: []})
+    @Column('jsonb', { default: [] })
     public cart: CartItem[] = [];
 
-    @Column('varchar', { array: true, default: [] })
-    public favourites: string[] = [];
+    @Column('varchar', { default: [], array: true })
+    public pins: number[] = [];
 
-    @Column('varchar', { array: true, default: [] })
-    public orders: string[] = [];
+    @Column('varchar', { default: [], array: true })
+    public orders: number[] = [];
 
     @Column('int', { default: 0 })
-    public foundPromocodesCount: number;
+    public foundPromocodesCount: number = 0;
 }

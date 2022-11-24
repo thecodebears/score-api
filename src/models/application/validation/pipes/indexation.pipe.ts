@@ -9,7 +9,7 @@ export class ApplicationIndexationPipe implements PipeTransform {
     ) {}
 
     public async transform(value: any) {
-        let application = await this.applicationService.findOneBy({ id: value as string});
+        let application = value ? await this.applicationService.findOneBy({ id: value as string }) : null
         if (!application) throw new HttpException('application.entity.notFound', 400);
         return application;
     }
