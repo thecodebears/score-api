@@ -1,6 +1,6 @@
 import { Column, Entity, Index } from 'typeorm';
 import { ModelEntity } from '../model.entity';
-import { Cart } from './account.types';
+import { CartItem } from './account.types';
 
 
 @Entity()
@@ -20,9 +20,15 @@ export abstract class Account extends ModelEntity {
     @Column('boolean', { default: false })
     public admin: boolean = false;
 
-    @Column('jsonb', { default: {} })
-    public cart: Cart = {};
+    @Column('jsonb', { default: [] })
+    public cart: CartItem[] = [];
 
-    @Column('varchar', { array: true, default: [] })
-    public favourites: string[] = [];
+    @Column('varchar', { default: [], array: true })
+    public pins: number[] = [];
+
+    @Column('varchar', { default: [], array: true })
+    public orders: number[] = [];
+
+    @Column('int', { default: 0 })
+    public foundPromocodesCount: number = 0;
 }

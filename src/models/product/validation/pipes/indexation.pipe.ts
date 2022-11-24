@@ -9,7 +9,7 @@ export class ProductIndexationPipe implements PipeTransform {
     ) {}
 
     public async transform(value: any) {
-        let product = await this.productService.findOneBy({ id: value as string});
+        let product = value ? await this.productService.findOneBy({ id: value as number }) : null;
         if (!product) throw new HttpException('product.entity.notFound', 400);
         return product;
     }

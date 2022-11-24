@@ -25,6 +25,14 @@ export class ModelService<T extends ObjectLiteral> {
         return this.repository.save(entity);
     }
 
+    public async save(entity: T): Promise<T> {
+        return this.repository.save(entity);
+    }
+
+    public async all(): Promise<T[]> {
+        return this.repository.find();
+    }
+
     public async findBy(columns: Columns<T>): Promise<T[]> {
         return this.repository.find({ where: columns });
     }

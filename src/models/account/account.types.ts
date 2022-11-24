@@ -1,11 +1,11 @@
-import { IsString, IsNotEmpty } from "class-validator";
+import { Transform } from "class-transformer";
+import { IsString, IsNotEmpty, IsInt } from "class-validator";
 import { Account } from "./account.entity";
 
-type ProductId = string;
-type Count = number;
 
-export type Cart = {
-    [key: ProductId]: Count
+export type CartItem = {
+    id: number,
+    count: number
 };
 
 export type SignUpResponse = {
@@ -21,4 +21,11 @@ export class AccountSignUpRequest {
     @IsString()
     @IsNotEmpty()
     password: string;
+}
+
+export class AccountAddToCartRequest {
+    @IsInt()
+    @IsNotEmpty()
+    @Transform(({ value }) => parseInt(value))
+    count: number;
 }

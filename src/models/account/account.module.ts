@@ -10,6 +10,8 @@ import { DiscordStrategy } from 'src/security/strategies/discord.strategy';
 import { SessionSerializer } from 'src/utils/serializer/serializer';
 import { ConnectionService } from './connection/connection.service';
 import { SecurityModule } from 'src/security/security.module';
+import { ProductService } from '../product/product.service';
+import { ProductModule } from '../product/product.module';
 
 
 @Global()
@@ -19,7 +21,8 @@ import { SecurityModule } from 'src/security/security.module';
         JwtModule.register({
             secret: env.security.jwt.secret
         }),
-        SecurityModule
+        SecurityModule,
+        ProductModule
     ],
     providers: [
         AccountService,

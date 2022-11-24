@@ -6,7 +6,6 @@ import { Application } from 'src/models/application/application.entity';
 import { Account } from 'src/models/account/account.entity';
 import { Connection } from 'src/models/account/connection/connection.entity';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
-import { Review } from './src/models/product/review/review.entity';
 
 
 const config: Readonly<PostgresConnectionOptions> = {
@@ -27,8 +26,7 @@ const config: Readonly<PostgresConnectionOptions> = {
         Product,
         Application,
         Account,
-        Connection,
-        Review
+        Connection
     ],
 
     ...(process.env.useSSL === ('true' || true) && {

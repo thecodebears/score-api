@@ -1,5 +1,5 @@
 import { Transform } from "class-transformer";
-import {IsBoolean, IsJSON, IsNotEmpty, IsNumber, IsString } from "class-validator";
+import { IsArray, IsBoolean, IsJSON, IsNotEmpty, IsNumber, IsString } from "class-validator";
 import { ModelIndexationRequest } from "../model.types";
 
 
@@ -7,19 +7,12 @@ export type ProductFeatures = {
     [key: string]: string
 };
 
-export type ProductReview = {
-    review: string,
-    author: string
-};
+export type ProductAnalyticsAction = 'view' | 'pin' | 'sale';
 
 export class ProductCreateRequest {
     @IsNotEmpty()
     @IsString()
     label: string;
-
-    @IsNotEmpty()
-    @IsString()
-    sublabel: string;
 
     @IsNotEmpty()
     @IsString()
@@ -32,7 +25,12 @@ export class ProductCreateRequest {
     @IsNotEmpty()
     @IsNumber()
     @Transform(({ value }) => parseInt(value))
-    price: number;
+    costPrice: number;
+
+    @IsNotEmpty()
+    @IsNumber()
+    @Transform(({ value }) => parseFloat(value))
+    markup: number;
 
     @IsNotEmpty()
     @IsNumber()
@@ -40,26 +38,35 @@ export class ProductCreateRequest {
     quantity: number;
 
     @IsNotEmpty()
-    @IsBoolean()
-    @Transform(({ value }) => value === 'true')
-    delivered: boolean;
+    @IsJSON()
+    @Transform(({ value }) => JSON.parse(value))
+    features: ProductFeatures;
 
     @IsNotEmpty()
-    @IsJSON()
-    features: ProductFeatures;
+    @IsArray()
+    @Transform(({ value }) => value.split(/\,/g).filter(e => e))
+    tags: string[];
+
+    @IsNotEmpty()
+    @IsArray()
+    @Transform(({ value }) => value.split(/\;/g).filter(e => e))
+    photos: string[];
 }
 
-export class ProductAddReviewRequest extends ModelIndexationRequest {
+export class ProductSearchRequest {
+    @IsString()
+    query: string;
+    
+    @IsString()
+    category: string;
+
+    @IsString()
+    @Transform(({ value }) => value.split(/\;/g).filter(e => e))
+    tags: string[]
+}
+
+export class ProductCountActionRequest {
     @IsNotEmpty()
     @IsString()
-    author: string;
-
-    @IsNotEmpty()
-    @IsNumber()
-    @Transform(({ value }) => parseInt(value))
-    rating: number;
-
-    @IsNotEmpty()
-    @IsString()
-    details: string;
+    type: ProductAnalyticsAction;
 }

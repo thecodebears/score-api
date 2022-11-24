@@ -1,10 +1,11 @@
 import { Controller, Get, HttpException, Post, Query, UseGuards, Response, ParseUUIDPipe } from "@nestjs/common";
 import { SetPermissions, Permissions } from "src/security/permissions/permissions";
 import { ApplicationJwtGuard } from "../../security/guards/jwt.guard";
-import { ModelCreateRequest, ModelDeleteRequest, ModelGetRequest, ModelSearchRequest, ModelUpdateRequest } from "../model.types";
+import { AccountIndexationPipe } from "../account/validation/pipes/indexation.pipe";
+import { ModelGetRequest, ModelUpdateRequest } from "../model.types";
 import { Product } from "./product.entity";
 import { ProductService } from "./product.service";
-import { ProductAddReviewRequest, ProductCreateRequest } from "./product.types";
+import { ProductCountActionRequest, ProductCreateRequest, ProductSearchRequest } from "./product.types";
 import { ProductIndexationPipe } from "./validation/pipes/indexation.pipe";
 
 
@@ -21,8 +22,8 @@ export class ProductController {
     @Get()
     @SetPermissions('product.get')
     @UseGuards(ApplicationJwtGuard)
-    public async get(
-        @Query('id', ParseUUIDPipe, ProductIndexationPipe) product,
+    public async getById(
+        @Query('id', ProductIndexationPipe) product,
         @Query() { fields }: ModelGetRequest
     ) {
         return fields ? product.pick(fields?.split(/\,/g)) : product;
@@ -38,16 +39,20 @@ export class ProductController {
     @Post('search')
     @SetPermissions('product.get')
     @UseGuards(ApplicationJwtGuard)
-    public async search() {
-        // Waiting for search engine.
-        return 'Not implemented.';
+    public async search(@Query() { query, category, tags }: ProductSearchRequest) {
+        let list = await (category ? this.productService.findBy({ category }) : this.productService.all());
+
+        return list.filter(p => {
+            let findMatchesIn = p.label.toLowerCase() + p.description.toLowerCase();
+            return tags.every(t => p.tags.includes(t)) || findMatchesIn.indexOf(query?.toLowerCase()) >= 0
+        });
     }
 
     @Post('update')
     @SetPermissions('product.update')
     @UseGuards(ApplicationJwtGuard)
     public async update(
-        @Query('id', ParseUUIDPipe, ProductIndexationPipe) product,
+        @Query('id', ProductIndexationPipe) product,
         @Query() overrideFields: ModelUpdateRequest<Product>,
         @Response({ passthrough: true }) res
     ) {
@@ -61,20 +66,25 @@ export class ProductController {
     @SetPermissions('product.delete')
     @UseGuards(ApplicationJwtGuard)
     public async delete(
-        @Query('id', ParseUUIDPipe, ProductIndexationPipe) product,
+        @Query('id', ProductIndexationPipe) product,
         @Response({ passthrough: true }) res
     ) {
         await this.productService.remove(product);
+
         res.status(200);
     }
 
-    @Post('addReview')
+    @Post('countAction')
     @SetPermissions('product.update')
     @UseGuards(ApplicationJwtGuard)
-    public async addReview(
-        @Query('id', ParseUUIDPipe, ProductIndexationPipe) product,
-        @Query() { author, rating, details }: ProductAddReviewRequest
+    public async countAction(
+        @Query('id', ProductIndexationPipe) product,
+        @Query('accountId', AccountIndexationPipe) account,
+        @Query() { type }: ProductCountActionRequest,
+        @Response({ passthrough: true }) res
     ) {
-        return this.productService.addReview(product, { author, rating, details });
+        await this.productService.countAction(product, account.id, type);
+
+        res.status(200);
     }
 }
