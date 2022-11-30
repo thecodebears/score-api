@@ -34,7 +34,7 @@ export class AccountController {
     ) {}
 
     @Get()
-    @UseGuards(AccountJwtGuard, AdminGuard)
+    @UseGuards(ApplicationJwtGuard, AdminGuard)
     public async get(
         @Query('id', ParseUUIDPipe, AccountIndexationPipe) account,
         @Query() { fields }: ModelGetRequest
