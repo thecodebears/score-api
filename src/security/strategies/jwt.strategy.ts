@@ -19,7 +19,13 @@ export class AccountJwtStrategy extends PassportStrategy(Strategy, 'AccountJwt')
     }
 
     async validate(payload: any): Promise<any> {
-        return payload.scope === 'account' ? payload : null;
+        if (!payload || payload?.scope != 'account') return null;
+
+        let account = await this.accountService.findOneBy({ id: payload.id });
+
+        if (account && account.password == payload.password) return payload;
+        
+        return null;
     }
 }
 

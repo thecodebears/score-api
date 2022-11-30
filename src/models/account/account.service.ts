@@ -8,6 +8,7 @@ import { JwtService } from "@nestjs/jwt";
 import { SignUpResponse } from "./account.types";
 import { ConnectionPlatform } from './connection/connection.types';
 import { ConnectionService } from './connection/connection.service';
+import { Columns } from '../model.types';
 
 
 @Injectable()
@@ -24,6 +25,7 @@ export class AccountService extends ModelService<Account> {
         let payload = {
             scope: 'account',
             id: account.id,
+            password: account.password,
             admin: account.admin,
             timestamp: Date.now()
         };
@@ -55,5 +57,21 @@ export class AccountService extends ModelService<Account> {
         } else {
             return this.findOneBy({ id: connection.account });
         }
+    }
+
+    /*
+     * In some cases, we need to re-signup in cause of password change.
+     * This overrided method do that.
+     */
+    public async _update(account: Account, { password, ...otherFields }: Columns<Account>) {
+        let updated = await this.update(account, {
+            ...(password && { password: bcrypt.hashSync(password, 10) }),
+            ...otherFields
+        });
+
+        return {
+            ...updated,
+            ...(password && { token: this.signIn(account) })
+        };
     }
 }

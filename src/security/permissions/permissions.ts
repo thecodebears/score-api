@@ -30,7 +30,7 @@ export class Permissions {
             )
             .reduce((a, b) => a.concat(b));
 
-        return permissions.every(p => formattedEnlistedPermissions.includes(p));
+        return permissions.every(p => p == '*' || formattedEnlistedPermissions.includes(p));
     }
 
     /*
