@@ -10,7 +10,7 @@ namespace environment {
         export const discord = {
             clientId: process.env.discordClientId,
             clientSecret: process.env.discordClientSecret,
-            callbackUrl: `http://${ process.env.scope === 'DEV' ? 'localhost' : process.env.domain }${port}${process.env.discordCallbackPath}`
+            callbackUrl: `http://${ process.env.scope === 'DEV' ? 'localhost' : process.env.domain }:${port}${process.env.discordCallbackPath}`
         };
     }
 
