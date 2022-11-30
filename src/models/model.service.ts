@@ -22,6 +22,7 @@ export class ModelService<T extends ObjectLiteral> {
 
     public async update(entity: T, override: Columns<T>): Promise<T> {
         Object.assign(entity, override);
+
         return this.repository.save(entity);
     }
 
