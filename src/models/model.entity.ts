@@ -18,7 +18,7 @@ export abstract class ModelEntity extends ModelEntityInterface {
 }
 
 /**
- * For some cases like Product.
+ * For some cases like Item.
  */
 @Entity()
 export abstract class NumberSerializedModelEntity extends ModelEntityInterface {
