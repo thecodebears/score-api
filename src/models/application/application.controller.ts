@@ -10,9 +10,10 @@ import {
     ModelUpdateRequest
 } from '../model.types';
 import { Application } from './application.entity';
-import { ApplicationNewRequest } from './application.types';
 import { Permissions } from 'src/security/permissions/permissions';
 import { ApplicationIndexationPipe } from './validation/pipes/indexation.pipe';
+import { ApplicationCreateDto } from './validation/dto/create.dto';
+import { ApplicationUpdateDto } from './validation/dto/update.dto';
 
 
 @Controller('application')
@@ -30,30 +31,25 @@ export class ApplicationController {
         return fields ? application.pick(fields?.split(/\,/g)) : application;
     }
 
-    @Post('create')
-    @UseGuards(AccountJwtGuard, AdminGuard)
-    public async create() {
-        return 'Method is deprecated, see /application/new.';
-    }
-
     @Post('search')
     @UseGuards(AccountJwtGuard, AdminGuard)
     public async search() {
         // Waiting for search engine.
-        return 'Not implemented.';
+        throw new HttpException('method.notImplemented', 400);
     }
 
     @Post('update')
     @UseGuards(AccountJwtGuard, AdminGuard)
     public async update(
         @Query('id', ParseUUIDPipe, ApplicationIndexationPipe) application,
-        @Query() overrideFields: ModelUpdateRequest<Application>,
+        @Query() overrideFields: ApplicationUpdateDto,
         @Response({ passthrough: true }) res
     ) {
-        let updateResult = await this.applicationService.update(application, overrideFields);
-        if (!updateResult) throw new HttpException('Failed to update application. Check your parameters, it may be incorrect.', 500);
+        let updated = await this.applicationService.update(application, overrideFields);
 
-        res.status(200);
+        if (!updated) throw new HttpException('query.parameters.invalid', 500);
+
+        return updated;
     }
 
     @Post('delete')
@@ -63,22 +59,20 @@ export class ApplicationController {
         @Response({ passthrough: true }) res
     ) {
         let application = await this.applicationService.findOneBy({ id });
-        if (!application) throw new HttpException('Application not found.', 404);
+
+        if (!application) throw new HttpException('application.entity.notFound', 404);
 
         await this.applicationService.remove(application);
 
         res.status(200);
     }
 
-    /*
-     * Creates entity instances as /create, but do authorization as well.
-     */
-    @Post('new')
+    @Post('create')
     @UseGuards(AccountJwtGuard, AdminGuard)
-    public async new(@Query() { name, description, permissions }: ApplicationNewRequest) {
-        let permissionsList = permissions.split(/\,/g);
-        if (!Permissions.validatePermissions(permissionsList)) throw new HttpException('Invalid permissions.', 400);
-        return this.applicationService.new(name, description, permissionsList);
+    public async new(@Query() { name, description, permissions }: ApplicationCreateDto) {
+        if (!Permissions.validatePermissions(permissions)) throw new HttpException('query.permissions.invalid', 400);
+        
+        return this.applicationService.new(name, description, permissions);
     }
 
     @Post('authorize')
