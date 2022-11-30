@@ -1,10 +1,10 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { NumberSerializedModelEntity } from '../model.entity';
-import { ProductFeatures } from './product.types';
+import { ItemFeatures } from './item.types';
 
 
 @Entity()
-export abstract class Product extends NumberSerializedModelEntity {
+export abstract class Item extends NumberSerializedModelEntity {
     @Column('varchar', { length: 256 })
     public label: string;
 
@@ -15,16 +15,10 @@ export abstract class Product extends NumberSerializedModelEntity {
     public category: string;
 
     @Column('int')
-    public costPrice: number;
-
-    @Column('float')
-    public markup: number;
-
-    @Column('int')
     public quantity: number;
 
     @Column('jsonb')
-    public features: ProductFeatures;
+    public features: ItemFeatures;
 
     @Column('varchar', { array: true })
     public tags: string[];
@@ -33,8 +27,38 @@ export abstract class Product extends NumberSerializedModelEntity {
     public photos: string[];
 
     /**
+     * Rows below are used for price
+     * calculation and statistics.
+     * 
+     * price = costPrice * (1 + markup) * (1 - discount)
+     */
+
+    @Column('int')
+    public costPrice: number;
+
+    @Column('float')
+    public markup: number = 0;
+
+    @Column('varchar', { nullable: true })
+    public discountId: string;
+
+    /**
+     * Rows below are calculated.
+     */
+
+    @Column('int', { nullable: true })
+    public price: number;
+
+    @Column('float', { nullable: true })
+    public discount: number;
+
+    @Column('int', { nullable: true })
+    public discountEndTime: number;
+
+    /**
      * Rows below are used for analytics.
-     * It contains user id's.
+     * 
+     * It contains user ids.
      */
 
     @Column('varchar', { array: true })
