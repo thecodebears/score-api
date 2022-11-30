@@ -9,14 +9,16 @@ import {
     ModelUpdateRequest
 } from "../model.types";
 import { Account } from './account.entity';
-import { AccountAddToCartRequest, AccountSignUpRequest } from './account.types';
 import { LocalAuthGuard } from 'src/security/guards/localAuth.guard';
 import { SetPermissions, Permissions } from 'src/security/permissions/permissions';
 import { DiscordAuthGuard } from 'src/security/guards/discordAuth.guard';
 import { AccountIndexationPipe } from './validation/pipes/indexation.pipe';
-import { ProductService } from '../product/product.service';
-import { ProductIndexationPipe } from '../product/validation/pipes/indexation.pipe';
-import { Product } from '../product/product.entity';
+import { ItemService } from '../item/item.service';
+import { ItemIndexationPipe } from '../item/validation/pipes/indexation.pipe';
+import { Item } from '../item/item.entity';
+import { AccountCreateDto } from './validation/dto/create.dto';
+import { AccountAddToCartDto } from './validation/dto/cart.dto';
+import { AccountUpdateDto } from './validation/dto/update.dto';
 
 
 @Controller('account')
@@ -27,7 +29,7 @@ export class AccountController {
 
     constructor(
         private accountService: AccountService,
-        private productService: ProductService,
+        private itemService: ItemService,
         private jwtService: JwtService
     ) {}
 
@@ -40,19 +42,20 @@ export class AccountController {
         return fields ? account.pick(fields?.split(/\,/g)) : account;
     }
 
-    @Post('create')
-    @SetPermissions('account.create')
-    @UseGuards(ApplicationJwtGuard)
-    public async create() {
-        return 'Method is depcecated, see /account/signUp.'
-    }
-
     @Post('search')
     @SetPermissions('account.get')
     @UseGuards(ApplicationJwtGuard)
     public async search() {
         // Waiting for search engine.
-        return 'Not implemented.';
+        throw new HttpException('method.notImplemented', 400);
+    }
+
+    @Post('create')
+    @Post('signup')
+    @SetPermissions('account.create')
+    @UseGuards(ApplicationJwtGuard)
+    public async signUp(@Query() { username, password }: AccountCreateDto) {
+        return this.accountService.signUp(username, password);
     }
 
     @Post('update')
@@ -60,13 +63,13 @@ export class AccountController {
     @UseGuards(ApplicationJwtGuard)
     public async update(
         @Query('id', ParseUUIDPipe, AccountIndexationPipe) account,
-        @Query() overrideFields: ModelUpdateRequest<Account>,
-        @Response({ passthrough: true }) res
+        @Query() overrideFields: AccountUpdateDto
     ) {
-        let updateResult = await this.accountService.update(account, overrideFields);
-        if (!updateResult) throw new HttpException('Failed to update account. Check your parameters, it may be incorrect.', 500);
+        let updated = await this.accountService._update(account, overrideFields);
+        
+        if (!updated) throw new HttpException('query.parameters.invalid', 500);
 
-        res.status(200);
+        return updated;
     }
 
     @Post('delete')
@@ -80,16 +83,9 @@ export class AccountController {
         res.status(200);
     }
 
-    @Post('signup')
-    @SetPermissions('account.create')
-    @UseGuards(ApplicationJwtGuard)
-    public async signUp(@Query() { username, password }: AccountSignUpRequest) {
-        return this.accountService.signUp(username, password);
-    }
-
     @Post('signin')
     @SetPermissions('account.get')
-    @UseGuards(ApplicationJwtGuard, LocalAuthGuard)
+    @UseGuards(LocalAuthGuard)
     public async signIn(@Request() req) {
         return { token: this.accountService.signIn(req.user) };
     }
@@ -111,12 +107,12 @@ export class AccountController {
     @UseGuards(ApplicationJwtGuard)
     public async addToCart(
         @Query('id', ParseUUIDPipe, AccountIndexationPipe) account: Account,
-        @Query('productId', ProductIndexationPipe) product: Product,
-        @Query() { count }: AccountAddToCartRequest,
+        @Query('itemId', ItemIndexationPipe) item: Item,
+        @Query() { count }: AccountAddToCartDto,
         @Response({ passthrough: true }) res
     ) {
         account.cart.push({
-            id: product.id,
+            id: item.id,
             count: count
         });
         await this.accountService.save(account);
@@ -129,14 +125,14 @@ export class AccountController {
     @UseGuards(ApplicationJwtGuard)
     public async removeFromCart(
         @Query('id', ParseUUIDPipe, AccountIndexationPipe) account: Account,
-        @Query('productId', ProductIndexationPipe) product: Product,
+        @Query('itemId', ItemIndexationPipe) item: Item,
         @Response({ passthrough: true }) res
     ) {
-        if (!account.cart.some(p => p.id == product.id)) throw new HttpException('account.cart.element.notFound', 400);
+        if (!account.cart.some(p => p.id == item.id)) throw new HttpException('account.cart.element.notFound', 400);
 
-        account.cart = account.cart.filter(e => e.id != product.id);
+        account.cart = account.cart.filter(e => e.id != item.id);
+        
         await this.accountService.save(account);
-
         res.status(200);
     }
 
@@ -148,8 +144,8 @@ export class AccountController {
         @Response({ passthrough: true }) res
     ) {
         account.cart = [];
-        await this.accountService.save(account);
 
+        await this.accountService.save(account);
         res.status(200);
     }
 
@@ -158,14 +154,12 @@ export class AccountController {
     @UseGuards(ApplicationJwtGuard)
     public async addToPins(
         @Query('id', ParseUUIDPipe, AccountIndexationPipe) account: Account,
-        @Query('productId', ProductIndexationPipe) product: Product,
+        @Query('itemId', ItemIndexationPipe) item: Item,
         @Response({ passthrough: true }) res
     ) {
-        account.pins.push(product.id);
+        account.pins.push(item.id);
         await this.accountService.save(account);
-
-        await this.productService.countAction(product, account.id, 'pin');
-
+        await this.itemService.countAction(item, account.id, 'pin');
         res.status(200);
     }
 
@@ -174,14 +168,14 @@ export class AccountController {
     @UseGuards(ApplicationJwtGuard)
     public async removeFromPins(
         @Query('id', ParseUUIDPipe, AccountIndexationPipe) account: Account,
-        @Query('productId', ProductIndexationPipe) product: Product,
+        @Query('itemId', ItemIndexationPipe) item: Item,
         @Response({ passthrough: true }) res
     ) {
-        if (!account.pins.some(pid => pid == product.id)) throw new HttpException('account.pins.element.notFound', 400);
+        if (!account.pins.some(pid => pid == item.id)) throw new HttpException('account.pins.element.notFound', 400);
 
-        account.pins = account.pins.filter(pid => pid != product.id);
+        account.pins = account.pins.filter(pid => pid != item.id);
+        
         await this.accountService.save(account);
-
         res.status(200);
     }
 
@@ -193,8 +187,8 @@ export class AccountController {
         @Response({ passthrough: true }) res
     ) {
         account.pins = [];
-        await this.accountService.save(account);
 
+        await this.accountService.save(account);
         res.status(200);
     }
 }
