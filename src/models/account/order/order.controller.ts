@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Query, UseGuards, Response, HttpException } from "@nestjs/common";
-import { ModelGetRequest, ModelUpdateRequest } from "src/models/model.types";
-import { ApplicationJwtGuard } from "src/security/guards/jwt.guard";
-import { SetPermissions, Permissions } from "src/security/permissions/permissions";
+import { ModelGetRequest, ModelUpdateRequest } from "../../model.types";
+import { ApplicationJwtGuard } from "../../../security/guards/jwt.guard";
+import { SetPermissions, Permissions } from "../../../security/permissions/permissions";
 import { Order } from "./order.entity";
 import { OrderService } from "./order.service";
 import { OrderCreateDto } from "./validation/dto/create.dto";

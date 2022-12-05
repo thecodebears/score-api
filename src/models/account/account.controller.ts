@@ -9,9 +9,9 @@ import {
     ModelUpdateRequest
 } from "../model.types";
 import { Account } from './account.entity';
-import { LocalAuthGuard } from 'src/security/guards/localAuth.guard';
-import { SetPermissions, Permissions } from 'src/security/permissions/permissions';
-import { DiscordAuthGuard } from 'src/security/guards/discordAuth.guard';
+import { LocalAuthGuard } from '../../security/guards/localAuth.guard';
+import { SetPermissions, Permissions } from '../../security/permissions/permissions';
+import { DiscordAuthGuard } from '../../security/guards/discordAuth.guard';
 import { AccountIndexationPipe } from './validation/pipes/indexation.pipe';
 import { ItemService } from '../item/item.service';
 import { ItemIndexationPipe } from '../item/validation/pipes/indexation.pipe';

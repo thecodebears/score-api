@@ -1,6 +1,6 @@
 import { Transform, Type } from "class-transformer";
 import { IsArray, IsBoolean, IsInt, IsJSON, IsOptional, IsString, ValidateNested } from "class-validator";
-import { IntoNumberArray, IntoObjectArray } from "src/utils/dtoTranformers";
+import { IntoNumberArray, IntoObjectArray } from "../../../../utils/dtoTranformers";
 import { CartItem } from "../../account.types";
 import { IntoNumber } from '../../../../utils/dtoTranformers';
 

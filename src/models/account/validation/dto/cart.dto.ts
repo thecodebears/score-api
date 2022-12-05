@@ -1,6 +1,6 @@
 import { Transform } from "class-transformer";
 import { IsInt, IsNotEmpty } from "class-validator";
-import { IntoNumber } from "src/utils/dtoTranformers";
+import { IntoNumber } from "../../../../utils/dtoTranformers";
 
 
 export class AccountAddToCartDto {
